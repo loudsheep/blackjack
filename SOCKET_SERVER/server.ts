@@ -1,14 +1,14 @@
-// import http from "http";
-// import cors from "cors";
-// import { Server } from "socket.io";
-// import connectMongoDB from "./lib/mongodb";
-// import Game from "./models/game";
+import http from "http";
+import cors from "cors";
+import { Server } from "socket.io";
+import connectMongoDB from "./lib/mongodb";
+import Game from "./models/game";
 
-let http = require('http');
-let cors = require('cors');
-let { Server } = require('socket.io');
-let connectMongoDB = require('./lib/mongodb');
-let Game = require('./models/game');
+// let http = require('http');
+// let cors = require('cors');
+// let { Server } = require('socket.io');
+// let connectMongoDB = require('./lib/mongodb');
+// let Game = require('./models/game');
 
 const httpServer = http.createServer();
 
@@ -107,24 +107,25 @@ io.on('connection', (socket: any) => {
     console.log("User connected: ", socket.id);
 
     socket.on('join_room', async (data: IncomingData) => {
-        let room = data.roomId;
-        let gameHash = data.hash;
-        let userToken = data.token;
-        let username = data.username;
+        console.log("JOINING ROOM - ", data);
+        // let room = data.roomId;
+        // let gameHash = data.hash;
+        // let userToken = data.token;
+        // let username = data.username;
 
-        let game = getGameByRoomId(data.roomId);
-        if (!game) {
-            await getGameData("", gameHash);
-        }
+        // let game = getGameByRoomId(data.roomId);
+        // if (!game) {
+        //     await getGameData("", gameHash);
+        // }
 
-        game = getGameByRoomId(room);
+        // game = getGameByRoomId(room);
 
-        if (!game || game?.gameStarted) {
-            socket.disconnect();
-            return;
-        }
+        // if (!game || game?.gameStarted) {
+        //     socket.disconnect();
+        //     return;
+        // }
 
-        addPlayerToGame(game, userToken, username);
+        // addPlayerToGame(game, userToken, username);
 
         socket.join(data.roomId);
     });

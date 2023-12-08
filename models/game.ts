@@ -42,7 +42,21 @@ const GameSchema = new mongoose.Schema(
                     default: false,
                 }
             }
-        ]
+        ],
+        settings: {
+            startingStack: {
+                type: Number,
+                required: true,
+            },
+            minBet: {
+                type: Number,
+                required: true,
+            },
+            maxBet: {
+                type: Number,
+                required: true,
+            }
+        },
     },
     { timestamps: true },
 );

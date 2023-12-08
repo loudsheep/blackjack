@@ -36,8 +36,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// import mongoose from "mongoose";
-var mongoose = require('mongoose');
+// let mongoose = require('mongoose');
+var mongoose_1 = require("mongoose");
 var connectMongoDB = function () { return __awaiter(void 0, void 0, void 0, function () {
     var error_1;
     var _a;
@@ -45,7 +45,7 @@ var connectMongoDB = function () { return __awaiter(void 0, void 0, void 0, func
         switch (_b.label) {
             case 0:
                 _b.trys.push([0, 2, , 3]);
-                return [4 /*yield*/, mongoose.connect((_a = process.env.MONGODB_URI) !== null && _a !== void 0 ? _a : '')];
+                return [4 /*yield*/, mongoose_1.default.connect((_a = process.env.MONGODB_URI) !== null && _a !== void 0 ? _a : '')];
             case 1:
                 _b.sent();
                 console.log("Connected to MongoDB.");

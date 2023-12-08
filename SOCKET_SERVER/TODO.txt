@@ -1,0 +1,22 @@
+Game updates:
+- LEAVE_GAME
+- BET (before game)
+- HIT/STAND/SPLIT/DOUBLE
+- DEAL_CARD (for dealer only)
+- START_GAME (creator only)
+- END_GAME (creator only)
+
+
+User actions:
+- BET
+- HIT/STAND/SPLIT/DOUBLE
+- LEAVE_GAME
+- SKIP_ROUND
+
+
+Socket events:
+- game update (for example when user performs an action like hit/stand/etc.)
+- game state update (when game starts/ends, )
+
+Socket incoming data type:
+- 

@@ -1,8 +1,4 @@
-// import http from "http";
-// import cors from "cors";
-// import { Server } from "socket.io";
-// import connectMongoDB from "./lib/mongodb";
-// import Game from "./models/game";
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -39,14 +35,18 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
-var http = require('http');
-var cors = require('cors');
-var Server = require('socket.io').Server;
-var connectMongoDB = require('./lib/mongodb');
-var Game = require('./models/game');
-var httpServer = http.createServer();
-var io = new Server(httpServer, {
+Object.defineProperty(exports, "__esModule", { value: true });
+var http_1 = require("http");
+var socket_io_1 = require("socket.io");
+var mongodb_1 = require("./lib/mongodb");
+var game_1 = require("./models/game");
+// let http = require('http');
+// let cors = require('cors');
+// let { Server } = require('socket.io');
+// let connectMongoDB = require('./lib/mongodb');
+// let Game = require('./models/game');
+var httpServer = http_1.default.createServer();
+var io = new socket_io_1.Server(httpServer, {
     cors: {
         origin: "http://localhost:3000", // Replace with frontend URL - TODO
         methods: ["GET", "POST"],
@@ -55,14 +55,14 @@ var io = new Server(httpServer, {
     }
 });
 var games = [];
-var getGameData = function (roomId, gameHash) { return __awaiter(_this, void 0, void 0, function () {
+var getGameData = function (roomId, gameHash) { return __awaiter(void 0, void 0, void 0, function () {
     var game;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, connectMongoDB()];
+            case 0: return [4 /*yield*/, (0, mongodb_1.default)()];
             case 1:
                 _a.sent();
-                return [4 /*yield*/, Game.find({ hash: gameHash }).exec()];
+                return [4 /*yield*/, game_1.default.find({ hash: gameHash }).exec()];
             case 2:
                 game = _a.sent();
                 if (game.length != 1) {
@@ -112,31 +112,25 @@ var addPlayerToGame = function (game, userToken, username) {
 };
 io.on('connection', function (socket) {
     console.log("User connected: ", socket.id);
-    socket.on('join_room', function (data) { return __awaiter(_this, void 0, void 0, function () {
-        var room, gameHash, userToken, username, game;
+    socket.on('join_room', function (data) { return __awaiter(void 0, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    room = data.roomId;
-                    gameHash = data.hash;
-                    userToken = data.token;
-                    username = data.username;
-                    game = getGameByRoomId(data.roomId);
-                    if (!!game) return [3 /*break*/, 2];
-                    return [4 /*yield*/, getGameData("", gameHash)];
-                case 1:
-                    _a.sent();
-                    _a.label = 2;
-                case 2:
-                    game = getGameByRoomId(room);
-                    if (!game || (game === null || game === void 0 ? void 0 : game.gameStarted)) {
-                        socket.disconnect();
-                        return [2 /*return*/];
-                    }
-                    addPlayerToGame(game, userToken, username);
-                    socket.join(data.roomId);
-                    return [2 /*return*/];
-            }
+            console.log("JOINING ROOM - ", data);
+            // let room = data.roomId;
+            // let gameHash = data.hash;
+            // let userToken = data.token;
+            // let username = data.username;
+            // let game = getGameByRoomId(data.roomId);
+            // if (!game) {
+            //     await getGameData("", gameHash);
+            // }
+            // game = getGameByRoomId(room);
+            // if (!game || game?.gameStarted) {
+            //     socket.disconnect();
+            //     return;
+            // }
+            // addPlayerToGame(game, userToken, username);
+            socket.join(data.roomId);
+            return [2 /*return*/];
         });
     }); });
     socket.on("disconnect", function () {
