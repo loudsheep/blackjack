@@ -33,7 +33,65 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
 
     return (
         <>
-            THIS IS BLACKJACK GAME COMPONENT
+        <body>
+            <div className="header">
+                <div>Game</div>
+                <div>Shop</div>
+                <div>Rules</div>
+                <div>Profile</div>
+            </div>
+            <div className="table">
+                <div className="dealer">
+                    <div>
+                    </div>
+                    <div>Player 1<p>cards</p>
+                        <div className="cards">
+                            <div className="card"></div>
+                        </div>
+                    </div>
+                    <div className="deck">
+
+                    </div>
+                </div>
+                <div className="players">
+                    <div>
+                        <div>Player 1<p>cards</p></div>
+                        <div className="cards">
+                            <div className="card"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div>Player 2<p>cards</p></div>
+                        <div className="cards">
+                            <div className="card"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div>Player 3<p>cards</p></div>
+                        <div className="cards">
+                            <div className="card"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div>Player 4<p>cards</p></div>
+                        <div className="cards">
+                            <div className="card"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div>Player 5<p>cards</p></div>
+                        <div className="cards">
+                            <div className="card"></div>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div className="footer">
+                    <p>REKLALMY</p>
+                </div>
+            </div>
+            
+        </body>
         </>
     );
 }
