@@ -47,50 +47,52 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
                 <div className="dealer">
                     <div>
                     </div>
-                    <div>Player 1<p>cards</p>
+                    <div><p>Dealer</p><p>cards</p>
                         <div className="cards">
                             <div className="card"></div>
                         </div>
                     </div>
                     <div className="deck">
-
                     </div>
                 </div>
                 <div className="players">
                     <div>
-                        <div>Player 1<p>cards</p></div>
+                        <div><p>Player 1</p><p>cards</p></div>
                         <div className="cards">
                             <div className="card"></div>
                         </div>
                     </div>
                     <div>
-                        <div>Player 2<p>cards</p></div>
+                        <div><p>Player 2</p><p>cards</p></div>
                         <div className="cards">
                             <div className="card"></div>
                         </div>
                     </div>
                     <div>
-                        <div>Player 3<p>cards</p></div>
+                        <div><p>Player 3</p><p>cards</p></div>
                         <div className="cards">
                             <div className="card"></div>
                         </div>
                     </div>
                     <div>
-                        <div>Player 4<p>cards</p></div>
+                        <div><p>Player 4</p><p>cards</p></div>
                         <div className="cards">
                             <div className="card"></div>
                         </div>
                     </div>
                     <div>
-                        <div>Player 5<p>cards</p></div>
+                        <div><p>Player 5</p><p>cards</p></div>
                         <div className="cards">
                             <div className="card"></div>
                         </div>
                     </div>
                     
                 </div>
-                <div className="footer">
-                    <p>REKLALMY</p>
+                <div className="action_buttons_space">
+                    <button>DOUBLE</button>
+                    <button>SPLIT</button>
+                    <button>STAND</button>
+                    <button>HIT</button>
                 </div>
             </div>
             
