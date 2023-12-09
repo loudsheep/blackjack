@@ -33,7 +33,7 @@ export default function CreateUserName({ headerText, gameHash, token }: CreateUs
 
         if (res.status == 201) {
             let json = JSON.parse(await res.json());
-            cookies().set('user_token', json.token, { expires: Date.now() + 60 * 60 * 24 * 365 });
+            cookies().set('user_token', json.token, { expires: Date.now() + 1000 * 60 * 60 * 24 * 365 });
 
             redirect(`/game/${gameHash}`);
         }
