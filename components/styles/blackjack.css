@@ -46,27 +46,26 @@ body{
     background-repeat: no-repeat;
     background-size: cover;
     border-radius: 0 0 50% 50%;
-}
-.lover_table{
-    height: 10%;
+    box-shadow: 0 10px 10px 10px black;
 }
 
+
 .players>div {
-    width: 100%;
-    height: 100%;
+    width: 20%;
+    height: 70%;
     text-align: center;
 }
 
 .players>div:nth-child(4n+1) {
-    padding-top: 1%;
+    margin-top: 1%;
 }
 
 .players>div:nth-child(2n+2) {
-    padding-top: 6%;
+    margin-top: 6%;
 }
 
 .players>div:nth-child(3) {
-    padding-top: 11%;
+    margin-top: 11%;
 }
 
 .card {
@@ -74,24 +73,30 @@ body{
     height: 59.92mm;
     border: 1px solid black;
     background-color: brown;
+    box-shadow: 0 3px 6px 6px black;
 }
 
 .cards {
     display: flex;
     align-items: center;
     justify-content: center;
+    height: 70%;
 }
 .dealer_card{
     width: 30mm;
     height: 47.568mm;
     border: 1px solid black;
     background-color: brown;
+    box-shadow: 0 3px 6px 6px black;
+    position: absolute;
+    top: 100px;
 }
-/* .dealer_cards{
+.dealer_cards{
     display: flex;
     align-items: center;
     justify-content: center;
-} */
+    width: 100%;
+}
 
 /* .deck {
     background-image: url("../blackjack/images/dealer_shoe.png");
@@ -123,23 +128,24 @@ body{
 .dealer>div:nth-child(2) {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
+    height: 100%;
     width: 30%;
 }
 
-
+.lover_table{
+    height: 10%;
+}
 .action_buttons_space {
     align-items: center;
     display: flex;
     justify-content: center;
     margin: 0 auto;
+    margin-top: 10px;
     width: 40%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     border-radius: 6rem 6rem 0 0;
-
-
 }
 .action_buttons_space>button {
     margin-right: 7px;
