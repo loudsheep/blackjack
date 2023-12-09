@@ -13,7 +13,7 @@ type GamePageProps = {
 };
 
 const checkIfGameExists = async (hash: string) => {
-    let games = await Game.findOne({ hash: hash, active: true, gameStarted: false }).exec();
+    let games = await Game.findOne({ hash: hash, active: true }).exec();
 
     return games;
 };
