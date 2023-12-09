@@ -3,3 +3,6 @@
 @tailwind utilities;
 
 /* Style przeniosłem do folderu /components/styles i w pliku BlackjackGame.tsx na górze jest inport do tego pliku */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}

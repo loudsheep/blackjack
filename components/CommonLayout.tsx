@@ -1,16 +1,9 @@
-import React from 'react';
-import type { Metadata } from 'next';
+import React from 'react'
 
-
-export const metadata: Metadata = {
-    title: 'Blackjack!',
-    description: 'Create new blackjack game!',
-}
-
-export default function CreateLayout({
+export default function CommonLayout({
     children,
 }: {
-    children: React.ReactNode
+    children?: React.ReactNode
 }) {
     return (
         <div className="bg-green-500 h-screen flex flex-col items-center justify-start">
@@ -18,15 +11,15 @@ export default function CreateLayout({
                 className="absolute inset-0 bg-cover bg-center z-0"
                 style={{ backgroundImage: 'url(/bg.png)', opacity: '0.1', zIndex: '2' }}
             ></div>
+            {/* Navigation Bar */}
             <nav className="bg-green-800 w-full p-4 flex justify-between items-center" style={{ zIndex: '3' }}>
-                <div className="text-white text-2xl font-bold">
-                    <a href="/">
-                        Your Blackjack Game
-                    </a>
-                </div>
+                <a href="/">
+                    <div className="text-white text-2xl font-bold">Your Blackjack Game</div>
+                </a>
                 <div className="flex space-x-4">
-                    <a href="/about" className="text-white flex items-center">About</a>
-                    <a href="https://github.com/loudsheep/blackjack" className="text-white" target='_blank'>
+                    <a href="/about" className="text-white flex items-center" target='_blank'>About</a>
+
+                    <a href="https://github.com/loudsheep/blackjack" className="text-white" target="_blank">
                         <button
                             className="group flex justify-center items-center gap-2 group-hover:before:duration-500 group-hover:after:duration-500 after:duration-500 hover:border-neutral-900 duration-500 hover:duration-500 underline underline-offset-2 hover:underline hover:underline-offset-4 origin-left hover:decoration-2 hover:text-neutral-300 relative bg-neutral-900 px-5 py-2 border text-left p-2 text-gray-50 text-base font-bold rounded-lg overflow-hidden after:absolute after:z-10 after:w-12 after:h-12 after:content[''] after:bg-sky-900 after:-left-8 after:top-8 after:rounded-full after:blur-lg hover:after:animate-pulse"
                         >
@@ -51,7 +44,8 @@ export default function CreateLayout({
                 </div>
             </nav>
 
-            <div className="flex flex-col items-center justify-center text-white w-full">
+            {/* Main Content */}
+            <div className="flex flex-col items-start text-white">
                 <div style={{ zIndex: '3' }} className='flex flex-col items-center justify-center text-white w-full'>
                     {children}
                 </div>

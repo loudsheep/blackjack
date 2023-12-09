@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 import connectMongoDB from '@/lib/mongodb';
 import CreateUserName from '@/components/CreateUserName';
 import { redirect } from 'next/navigation';
+import CommonLayout from '@/components/CommonLayout';
 
 const getUserameFromToken = async (token: string) => {
     let user = await User.findOne({ token }).exec();
@@ -31,13 +32,13 @@ export default async function CreatePage() {
 
     const handleFormSubmit = async (formData: FormData) => {
         "use server";
-        
+
         const rawFormData = {
             startingStack: formData.get('startingStack'),
             minBet: formData.get('minBet'),
             maxBet: formData.get('maxBet'),
         }
-        
+
         let res = await fetch(process.env.BASE_PATH + '/api/game/create', {
             method: "POST",
             body: JSON.stringify({
@@ -57,7 +58,7 @@ export default async function CreatePage() {
     };
 
     return (
-        <>
+        <CommonLayout>
             <h1 className='mt-10 text-2xl font-bold'>Enter your game starting values</h1>
             <h2 className='mb-10'>And start the game</h2>
 
@@ -98,8 +99,7 @@ export default async function CreatePage() {
                     </div>
                     <button type="submit" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">Create a game</button>
                 </form>
-
             </div>
-        </>
+        </CommonLayout>
     )
 }

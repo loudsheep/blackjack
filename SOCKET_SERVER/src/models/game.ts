@@ -1,4 +1,3 @@
-// let mongoose = require('mongoose');
 import mongoose from "mongoose";
 
 const GameSchema = new mongoose.Schema(
@@ -43,7 +42,21 @@ const GameSchema = new mongoose.Schema(
                     default: false,
                 }
             }
-        ]
+        ],
+        settings: {
+            startingStack: {
+                type: Number,
+                required: true,
+            },
+            minBet: {
+                type: Number,
+                required: true,
+            },
+            maxBet: {
+                type: Number,
+                required: true,
+            }
+        },
     },
     { timestamps: true },
 );

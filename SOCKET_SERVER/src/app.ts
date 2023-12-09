@@ -3,7 +3,10 @@ import cors from "cors";
 import { Server } from "socket.io";
 import connectMongoDB from "./lib/mongodb";
 import Game from "./models/game";
+import { DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_REACT_NODES } from "react";
+import dotenv from "dotenv";
 
+dotenv.config();
 
 // let http = require('http');
 // let cors = require('cors');
@@ -36,8 +39,14 @@ type GameData = {
         token: string,
         username: string,
         tablePosition: number,
-        creator: boolean
+        creator: boolean,
+        stack: number,
     }[],
+    settings: {
+        startingStack: number,
+        minBet: number,
+        maxBet: number,
+    }
     deck: Card[] | null,
 };
 
@@ -51,25 +60,41 @@ type IncomingData = {
 let games: GameData[] = [];
 
 const getGameData = async (roomId: string, gameHash: string) => {
+    if (games.find(elem => elem.hash == gameHash)) {
+        return;
+    }
+
     await connectMongoDB();
 
-    let game = await Game.find({ hash: gameHash }).exec();
+    let game = await Game.findOne({ hash: gameHash }).exec();
 
-    if (game.length != 1) {
+    if (!game || !game.active) {
         return false;
     }
 
-    if (!game[0].active) {
-        return false;
+    let players = [];
+    for (const i of game.players) {
+        players.push({
+            token: i.token,
+            username: i.username,
+            tablePosition: i.tablePosition,
+            stack: game.settings.startingStack,
+            creator: i.creator,
+        });
     }
 
     games.push({
-        socketRoomId: game[0].socketRoomId,
+        socketRoomId: game.socketRoomId,
         gameStarted: false,
         hash: gameHash,
-        active: game[0].active,
-        players: game[0].players,
+        active: game.active,
+        players: players,
         deck: null,
+        settings: {
+            startingStack: game.settings.startingStack,
+            minBet: game.settings.minBet,
+            maxBet: game.settings.maxBet,
+        },
     });
 
     return true;
@@ -94,49 +119,52 @@ const getGameByHash = (hash: string) => {
 };
 
 const addPlayerToGame = (game: GameData, userToken: string, username: string) => {
-    game.players.push({
+    if (game.players.find(elem => elem.token == userToken)) {
+        return;
+    }
+
+    let newUser = {
         token: userToken,
         username: username,
         tablePosition: game.players.length + 1,
         creator: false,
-    });
+        stack: game.settings.startingStack
+    };
+
+    game.players.push(newUser);
     console.log("New player added to game: ", userToken, username);
 };
 
 
-io.on('connection', (socket: any) => {
+io.on('connection', (socket) => {
     console.log("User connected: ", socket.id);
 
     socket.on('join_room', async (data: IncomingData) => {
         console.log("JOINING ROOM - ", data);
-        // let room = data.roomId;
-        // let gameHash = data.hash;
-        // let userToken = data.token;
-        // let username = data.username;
 
-        // let game = getGameByRoomId(data.roomId);
-        // if (!game) {
-        //     await getGameData("", gameHash);
-        // }
+        let game = getGameByRoomId(data.roomId);
+        if (!game) {
+            await getGameData("", data.hash);
+        }
 
-        // game = getGameByRoomId(room);
+        game = getGameByRoomId(data.roomId);
 
-        // if (!game || game?.gameStarted) {
-        //     socket.disconnect();
-        //     return;
-        // }
+        if (!game) {
+            socket.disconnect();
+            return;
+        }
 
-        // addPlayerToGame(game, userToken, username);
+        addPlayerToGame(game, data.token, data.username);
 
-        socket.join(data.roomId);
+        await socket.join(data.roomId);
+        io.to(data.roomId).emit("new_user", game.players);
     });
-
-
 
     socket.on("disconnect", () => {
         console.log("A user disconnected:", socket.id);
     });
 });
+
 
 const PORT = process.env.SOCKET_PORT || 3001;
 httpServer.listen(PORT, () => {
