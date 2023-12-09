@@ -4,6 +4,9 @@ import { SocketIncomingData } from "@/types/SocketIncomingDataType";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
+// import do nowego pliku z CSS
+import '../styles/blackjack.css';
+
 type BlackjacjGameProps = {
     token: string,
     gameHash: string,
