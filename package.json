@@ -7,7 +7,7 @@
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
-        "node": "node server.js"
+        "node": "cd ./SOCKET_SERVER && npx tsc && node dist/app.js"
     },
     "dependencies": {
         "@types/socket.io": "^3.0.2",
