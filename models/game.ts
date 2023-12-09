@@ -32,7 +32,7 @@ const GameSchema = new mongoose.Schema(
                     type: String,
                     required: true,
                 },
-                table_position: {
+                tablePosition: {
                     type: Number,
                     required: true,
                 },

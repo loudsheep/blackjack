@@ -35,7 +35,7 @@ type GameData = {
     players: {
         token: string,
         username: string,
-        table_position: number,
+        tablePosition: number,
         creator: boolean
     }[],
     deck: Card[] | null,
@@ -97,7 +97,7 @@ const addPlayerToGame = (game: GameData, userToken: string, username: string) =>
     game.players.push({
         token: userToken,
         username: username,
-        table_position: game.players.length + 1,
+        tablePosition: game.players.length + 1,
         creator: false,
     });
     console.log("New player added to game: ", userToken, username);

@@ -28,7 +28,7 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
     };
 
     useEffect(() => {
-        joinRoom();
+        // joinRoom();
     }, []);
 
     return (

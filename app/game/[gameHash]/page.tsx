@@ -45,16 +45,16 @@ export default async function GamePage({ params }: GamePageProps) {
         return notFound();
     }
 
-    if (!user_token) {
+    if (!user_token || !(await getUserameFromToken(user_token.value))) {
         return (
-            <CreateUserName gameHash={params.gameHash}></CreateUserName>
+            <CreateUserName redirectUrl={`/game/${params.gameHash}`}></CreateUserName>
         );
     }
 
     let username = await getUserameFromToken(user_token.value);
     if (!username) {
         return (
-            <CreateUserName gameHash={params.gameHash}></CreateUserName>
+            <CreateUserName redirectUrl={`/game/${params.gameHash}`}></CreateUserName>
         );
     }
 

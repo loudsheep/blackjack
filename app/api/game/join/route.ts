@@ -26,7 +26,7 @@ export const POST = async (request: NextRequest) => {
         game.players.push({
             token,
             username,
-            table_position: game.players.length,
+            tablePosition: game.players.length,
             creator: false
         });
 

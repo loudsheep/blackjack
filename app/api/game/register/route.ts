@@ -6,19 +6,11 @@ import { randomBytes } from "crypto";
 import { cookies } from 'next/headers'
 
 export const POST = async (request: NextRequest) => {
-    let { gameHash, token, username } = await request.json();
+    let { token, username } = await request.json();
 
     await connectMongoDB();
 
     try {
-        let game = await Game.findOne({ hash: gameHash }).exec();
-
-        if (!game) {
-            return new NextResponse("Game not found", {
-                status: 404,
-            });
-        }
-
         if (!token) {
             token = randomBytes(100).toString('base64url');
         }
