@@ -6,8 +6,9 @@ import dotenv from "dotenv";
 import path from "path";
 import { GameData } from "./types/GameDataType";
 import { IncomingData } from "./types/IncomingDataType";
-import { addPlayerToGame, createGamesObject, getGameByRoomId, getGameData, updateGameStartedInDB } from "./lib/gameManager";
+import { addPlayerToGame, createGamesObject, getGameByRoomId, getGameData, updateGameStartedInDB } from "./game/gameManager";
 import { authenticateUser } from "./lib/auth";
+import { generateDeck } from "./game/cardDeck";
 
 dotenv.config({ path: path.resolve(__dirname + "../../../.env") });
 const httpServer = http.createServer();
@@ -19,11 +20,6 @@ const io = new Server(httpServer, {
         credentials: true,
     }
 })
-
-type Card = {
-    suit: string,
-    value: string,
-};
 
 let games = createGamesObject();
 
@@ -57,7 +53,7 @@ io.on('connection', (socket) => {
 
         game.gameStarted = true;
 
-        await updateGameStartedInDB(game);
+        // await updateGameStartedInDB(game);
 
         io.to(game.socketRoomId).emit("game_started");
     });

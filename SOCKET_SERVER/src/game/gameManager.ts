@@ -1,7 +1,7 @@
 import { randomBytes } from "crypto";
 import Game from "../models/game";
 import { GameData } from "../types/GameDataType"
-import connectMongoDB from "./mongodb";
+import connectMongoDB from "../lib/mongodb";
 
 export const createGamesObject = () => {
     let games: GameData[] = [];

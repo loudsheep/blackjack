@@ -14,7 +14,8 @@ export function generateDeck(): Card[] {
             if (value === 'J' || value === 'Q' || value === 'K') {
                 numValue = 10;
             } else if (value === 'A') {
-                numValue = 11; // Assuming default value for A is 11; adjust as needed
+                // TODO ace can be 1 OR 11
+                numValue = 11;
             } else {
                 numValue = parseInt(value, 10);
             }
