@@ -1,7 +1,6 @@
 import React from 'react';
-import ChipImage from '../../public/poker_chip.png';
-import ProfileImage from '../../public/profile.png';
-import CommonLayout from '../CommonLayout';
+import CommonLayout from '@/components/CommonLayout';
+import Image from 'next/image';
 
 type BeforeGameStartsProps = {
     players: {
@@ -45,7 +44,7 @@ export default function BeforeGameStarts({ players, currentUserIsCreator, startG
             {players.map((value, idx) => (
                 <div key={idx} className='flex bg-green-600 rounded-md w-full m-2 justify-center items-center p-5'>
                     <div className='flex justify-start items-center' style={{ flex: "2" }}>
-                        <img src={ProfileImage.src} alt="" className='h-8 w-8 mr-5' />
+                        <Image src={"/profile.png"} alt='Profile img' width={30} height={30} className='mr-5'></Image>
                         <p className='font-bold'>{value.username}</p>
                         {value.creator && (
                             <p className='ml-1 text-green-800'>
@@ -55,7 +54,7 @@ export default function BeforeGameStarts({ players, currentUserIsCreator, startG
                     </div>
 
                     <div className='flex justify-end items-center' style={{ flex: "1" }}>
-                        <img src={ChipImage.src} alt="" className='h-5 w-5 mr-3' />
+                        <Image src={"/poker_chip.png"} alt='Chip img' width={25} height={25} className='mr-5'></Image>
                         {value.stack}
                     </div>
                 </div>
