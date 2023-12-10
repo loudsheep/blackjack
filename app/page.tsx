@@ -46,8 +46,16 @@ export default function Home() {
 
                     {/* Create Game Button */}
                     <a href="/create">
-                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">
-                            Create a Game
+                        <button
+                            className="relative bg-gradient-to-b from-red-700 to-red-800 hover:from-red-800 hover:to-red-900 text-white font-bold py-2 px-4 rounded-md shadow-md transition-all duration-300"
+                            style={{ border: '2px solid #440000' }}
+                        >
+                            <div className="flex items-center justify-center space-x-2">
+                                {/* Casino Icon (Replace with your preferred icon or image) */}
+                                <span className="text-xl">&#127183;</span>
+                                {/* Button Text */}
+                                <span>Create a new game</span>
+                            </div>
                         </button>
                     </a>
                 </div>

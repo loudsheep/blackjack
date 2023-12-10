@@ -41,7 +41,8 @@ export default async function GamePage({ params }: GamePageProps) {
 
     await connectMongoDB();
 
-    if (!(await checkIfGameExists(params.gameHash))) {
+    let game = await checkIfGameExists(params.gameHash)
+    if (!game) {
         return notFound();
     }
 
@@ -61,9 +62,18 @@ export default async function GamePage({ params }: GamePageProps) {
     let roomId = await getGameSocketRoomId(params.gameHash);
     if (roomId === -1) return notFound();
 
+
+    
+    let isCreator = false;
+    for (const iterator of game.players) {
+        if (iterator.creator && iterator.token == user_token.value) {
+            isCreator = true;
+            break;
+        }
+    }
     // TODO join game via route /game/join
 
     return (
-        <BlackjackGame token={user_token.value} gameHash={params.gameHash} username={username} roomId={roomId}></BlackjackGame>
+        <BlackjackGame token={user_token.value} gameHash={params.gameHash} username={username} roomId={roomId} currentUserIsCreator={isCreator}></BlackjackGame>
     );
 }

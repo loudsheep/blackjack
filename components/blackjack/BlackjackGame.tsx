@@ -29,24 +29,21 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
     const [playersJoined, setPlayersJoined] = useState<NewUserType[]>([]);
 
     const socket = io("http://localhost:3001");
+    const authData: SocketIncomingData = {
+        roomId: props.roomId,
+        hash: props.gameHash,
+        token: props.token,
+        username: props.username,
+    };
 
     const joinRoom = () => {
-        let data: SocketIncomingData = {
-            roomId: props.roomId,
-            hash: props.gameHash,
-            token: props.token,
-            username: props.username,
-        };
-
-        socket.emit('join_room', data);
+        socket.emit('join_room', authData);
     };
 
     useEffect(() => {
         joinRoom();
 
         socket.on('new_user', (data: NewUserType[]) => {
-            console.log(data);
-
             setPlayersJoined(data);
         });
 
@@ -57,7 +54,7 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
 
     if (showWaitingForGameToStart) {
         return (
-            <BeforeGameStarts players={playersJoined}></BeforeGameStarts>
+            <BeforeGameStarts players={playersJoined} currentUserIsCreator={props.currentUserIsCreator} startGame={() => socket.emit('start_game', authData)}></BeforeGameStarts>
         );
     }
 
