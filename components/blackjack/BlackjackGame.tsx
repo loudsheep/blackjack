@@ -4,7 +4,6 @@ import { SocketIncomingData } from "@/types/SocketIncomingDataType";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
-// import do nowego pliku z CSS
 import '../styles/blackjack.css';
 import BeforeGameStarts from "./BeforeGameStarts";
 import logo from "./images/dealer_shoe.png";
@@ -14,6 +13,7 @@ type BlackjacjGameProps = {
     gameHash: string,
     username: string,
     roomId: string,
+    currentUserIsCreator: boolean
 };
 
 type NewUserType = {
@@ -25,31 +25,35 @@ type NewUserType = {
 };
 
 export default function BlackjackGame(props: BlackjacjGameProps) {
-    const [showWaitingForGameToStart, setShowWaitingForGameToStart] = useState<boolean>(false);
+    const [showWaitingForGameToStart, setShowWaitingForGameToStart] = useState<boolean>(true);
     const [playersJoined, setPlayersJoined] = useState<NewUserType[]>([]);
 
-    // const socket = io("http://localhost:3001");
+    const socket = io("http://localhost:3001");
 
-    // const joinRoom = () => {
-    //     let data: SocketIncomingData = {
-    //         roomId: props.roomId,
-    //         hash: props.gameHash,
-    //         token: props.token,
-    //         username: props.username,
-    //     };
+    const joinRoom = () => {
+        let data: SocketIncomingData = {
+            roomId: props.roomId,
+            hash: props.gameHash,
+            token: props.token,
+            username: props.username,
+        };
 
-    //     socket.emit('join_room', data);
-    // };
+        socket.emit('join_room', data);
+    };
 
-    // useEffect(() => {
-    //     joinRoom();
+    useEffect(() => {
+        joinRoom();
 
-    //     socket.on('new_user', (data: NewUserType[]) => {
-    //         console.log(data);
-            
-    //         setPlayersJoined(data);
-    //     });
-    // }, []);
+        socket.on('new_user', (data: NewUserType[]) => {
+            console.log(data);
+
+            setPlayersJoined(data);
+        });
+
+        socket.on('game_started', () => {
+            setShowWaitingForGameToStart(false);
+        });
+    }, []);
 
     if (showWaitingForGameToStart) {
         return (
@@ -57,10 +61,9 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
         );
     }
 
-
     return (
         <>
-        {/* <div className="body"> */}
+            {/* <div className="body"> */}
             <div className="header">
                 <div>Game</div>
                 <div>Shop</div>
@@ -77,7 +80,8 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
                         </div>
                     </div>
                     <div className="deck">
-                        {/* <img src={logo} alt="aha" /> */}
+                        {/* trzeba urzyć atrybutu logo.src żeby działało */}
+                        <img src={logo.src} alt="aha" />
                     </div>
                 </div>
                 <div className="players">
@@ -118,9 +122,9 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
                     <span className="bg-green-400 shadow-green-400 absolute -top-[150%] left-0 inline-flex w-80 h-[5px] rounded-md opacity-50 group-hover:top-[150%] duration-500 shadow-[0_0_10px_10px_rgba(0,0,0,0.3)]"></span>
                     Hover Me
                 </button> */}
-                
-                
-            
+
+
+
             </div>
             <div className="lover_table">
                 <div className="action_buttons_space">
@@ -130,7 +134,7 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
                     <button>HIT</button>
                 </div>
             </div>
-        {/* </div> */}
+            {/* </div> */}
         </>
     );
 }
