@@ -56,6 +56,8 @@ io.on('connection', (socket) => {
         // await updateGameStartedInDB(game);
 
         io.to(game.socketRoomId).emit("game_started");
+
+        io.timeout(1000).to(game.socketRoomId).emit("hand_starting");
     });
 
     socket.on("disconnect", () => {

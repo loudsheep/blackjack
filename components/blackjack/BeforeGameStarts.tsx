@@ -1,7 +1,6 @@
 import React from 'react';
 import CommonLayout from '@/components/CommonLayout';
 import Image from 'next/image';
-import { config } from 'dotenv';
 import CopyToClipboard from '../CopyToClipboard';
 
 type BeforeGameStartsProps = {
