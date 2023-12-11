@@ -1,0 +1,12 @@
+Events recieved by client:
+- game_started - all players joined, creator started the game, switch to game view in client browser
+- hand_starting - new hand starting, clients start betting
+- bets_closed - clients that did not bet, do not participate in this hand
+- deal_cards - server sends data about ALL dealt cards, client is responsible for animation, etc.
+- player_turn - recieves data which player's turn is it, and wait for his
+
+
+Event recieved by server:
+- join_game - player join the game, sends info about token, username
+- start_game - sent by game creator, emits game_started event to clients
+- place_bet - player placed a bet, check it's validity and register in game data
