@@ -46,24 +46,30 @@ export default async function GamePage({ params }: GamePageProps) {
         return notFound();
     }
 
-    if (!user_token || !(await getUserameFromToken(user_token.value))) {
+    if (!user_token) {
         return (
-            <CreateUserName redirectUrl={`/game/${params.gameHash}`}></CreateUserName>
+            <>
+                <h1 className='mt-10 text-2xl font-bold'>Enter yout username</h1>
+                <h2 className='mb-10'>Before you join the game</h2>
+                <CreateUserName redirectUrl={`/game/${params.gameHash}`}></CreateUserName>
+            </>
         );
     }
 
     let username = await getUserameFromToken(user_token.value);
     if (!username) {
         return (
-            <CreateUserName redirectUrl={`/game/${params.gameHash}`}></CreateUserName>
+            <>
+                <h1 className='mt-10 text-2xl font-bold'>Enter yout username</h1>
+                <h2 className='mb-10'>Before you join the game</h2>
+                <CreateUserName redirectUrl={`/game/${params.gameHash}`}></CreateUserName>
+            </>
         );
     }
 
     let roomId = await getGameSocketRoomId(params.gameHash);
     if (roomId === -1) return notFound();
 
-
-    
     let isCreator = false;
     for (const iterator of game.players) {
         if (iterator.creator && iterator.token == user_token.value) {

@@ -54,7 +54,7 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
 
     if (showWaitingForGameToStart) {
         return (
-            <BeforeGameStarts players={playersJoined} currentUserIsCreator={props.currentUserIsCreator} startGame={() => socket.emit('start_game', authData)}></BeforeGameStarts>
+            <BeforeGameStarts players={playersJoined} gameHash={props.gameHash} currentUserIsCreator={props.currentUserIsCreator} startGame={() => socket.emit('start_game', authData)}></BeforeGameStarts>
         );
     }
 

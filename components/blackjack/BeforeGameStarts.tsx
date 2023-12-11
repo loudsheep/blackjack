@@ -1,6 +1,8 @@
 import React from 'react';
 import CommonLayout from '@/components/CommonLayout';
 import Image from 'next/image';
+import { config } from 'dotenv';
+import CopyToClipboard from '../CopyToClipboard';
 
 type BeforeGameStartsProps = {
     players: {
@@ -8,11 +10,12 @@ type BeforeGameStartsProps = {
         stack: number,
         creator?: boolean
     }[],
+    gameHash: string,
     currentUserIsCreator: boolean,
     startGame: () => void
 };
 
-export default function BeforeGameStarts({ players, currentUserIsCreator, startGame }: BeforeGameStartsProps) {
+export default function BeforeGameStarts({ players, gameHash, currentUserIsCreator, startGame }: BeforeGameStartsProps) {
     return (
         <CommonLayout>
             <h1 className='text-2xl font-semibold m-10'>Waiting for game creator to start or resume the game</h1>
@@ -24,6 +27,9 @@ export default function BeforeGameStarts({ players, currentUserIsCreator, startG
                 <span className="sr-only">Loading...</span>
             </div>
 
+            <span className='w-full mt-5'>Game URL:</span>
+            <CopyToClipboard className='bg-green-700 rounded-lg p-5 w-full' text={"http://localhost:3000" + `/game/${gameHash}`}></CopyToClipboard>
+
             {currentUserIsCreator && (
                 <button
                     className="relative bg-gradient-to-b from-red-700 to-red-800 hover:from-red-800 hover:to-red-900 text-white font-bold py-2 px-4 rounded-md shadow-md transition-all duration-300 mt-5"
@@ -31,9 +37,7 @@ export default function BeforeGameStarts({ players, currentUserIsCreator, startG
                     onClick={startGame}
                 >
                     <div className="flex items-center justify-center space-x-2">
-                        {/* Casino Icon (Replace with your preferred icon or image) */}
                         <span className="text-xl">&#127183;</span>
-                        {/* Button Text */}
                         <span>Start the game</span>
                     </div>
                 </button>
