@@ -1,7 +1,7 @@
 import { randomBytes } from "crypto";
 import Game from "../models/game";
-import { GameData } from "../types/GameDataType"
 import connectMongoDB from "../lib/mongodb";
+import { GameData } from "../models/gameData";
 
 export const createGamesObject = () => {
     let games: GameData[] = [];
@@ -20,29 +20,20 @@ export const getGameData = async (games: GameData[], gameHash: string): Promise<
         return false;
     }
 
-    let players = [];
+    let gameData = new GameData(game.socketRoomId, gameHash, game.active, game.gameStarted, [], { startingStack: game.settings.startingStack, minBet: game.settings.minBet, maxBet: game.settings.maxBet });
+
     for (const i of game.players) {
-        players.push({
+        gameData.addPlayer({
             token: i.token,
             username: i.username,
             tablePosition: i.tablePosition,
             stack: game.settings.startingStack,
             creator: i.creator,
+            identifier: randomBytes(10).toString("base64url")
         });
     }
 
-    games.push({
-        socketRoomId: game.socketRoomId,
-        gameStarted: false,
-        hash: gameHash,
-        active: game.active,
-        players: players,
-        settings: {
-            startingStack: game.settings.startingStack,
-            minBet: game.settings.minBet,
-            maxBet: game.settings.maxBet,
-        },
-    });
+    games.push(gameData);
 
     return true;
 }
@@ -70,7 +61,7 @@ export const addPlayerToGame = (game: GameData, userToken: string, username: str
         identifier: randomBytes(10).toString("base64url"),
     };
 
-    game.players.push(newUser);
+    game.addPlayer(newUser);
     console.log("New player added to game: ", userToken, username);
 };
 
@@ -79,3 +70,7 @@ export const updateGameStartedInDB = async (game: GameData) => {
 
     await Game.updateOne({ hash: game.hash }, { gameStarted: game.gameStarted }).exec();
 }
+
+export const prepareGameDataToSend = async (game: GameData) => {
+
+};

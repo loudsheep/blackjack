@@ -4,7 +4,7 @@ import connectMongoDB from "./lib/mongodb";
 import Game from "./models/game";
 import dotenv from "dotenv";
 import path from "path";
-import { GameData } from "./types/GameDataType";
+// import { GameData } from "./types/GameDataType";
 import { IncomingData } from "./types/IncomingDataType";
 import { addPlayerToGame, createGamesObject, getGameByRoomId, getGameData, updateGameStartedInDB } from "./game/gameManager";
 import { authenticateUser } from "./lib/auth";
