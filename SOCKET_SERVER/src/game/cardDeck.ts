@@ -2,8 +2,8 @@ import { Card } from "../types/CardType";
 
 
 export function generateDeck(): Card[] {
-    const suits: string[] = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
-    const values: string[] = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+    const suits: string[] = ['hearts', 'diamonds', 'clubs', 'spades'];
+    const values: string[] = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'jack', 'queen', 'king', 'ace'];
 
     const deck: Card[] = [];
 
@@ -11,9 +11,9 @@ export function generateDeck(): Card[] {
         values.forEach((value) => {
             let numValue: number;
 
-            if (value === 'J' || value === 'Q' || value === 'K') {
+            if (value === 'jack' || value === 'queen' || value === 'king') {
                 numValue = 10;
-            } else if (value === 'A') {
+            } else if (value === 'ace') {
                 // TODO ace can be 1 OR 11
                 numValue = 11;
             } else {

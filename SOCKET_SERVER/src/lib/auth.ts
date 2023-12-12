@@ -1,4 +1,4 @@
-import { GameData } from "../types/GameDataType";
+import { GameData } from "../models/gameData";
 
 type AuthResultType = {
     authenticated: boolean,

@@ -25,7 +25,8 @@ type NewUserType = {
 
 export default function BlackjackGame(props: BlackjacjGameProps) {
     const [showWaitingForGameToStart, setShowWaitingForGameToStart] = useState<boolean>(true);
-    const [playersJoined, setPlayersJoined] = useState<NewUserType[]>([]);
+    const [players, setPlayers] = useState<NewUserType[]>([]);
+    // const [cardLeftInShoe, setCardsLeftInShoe] = useState<number>(0);
 
     const socket = io("http://localhost:3001");
     const authData: SocketAuth = {
@@ -42,25 +43,30 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
     useEffect(() => {
         joinRoom();
 
-        socket.on('new_user', (data: NewUserType[]) => {
-            setPlayersJoined(data);
+        socket.on('new_user', (data: any) => {
+            console.log(data);
+            
+            setPlayers(data.players);
+            setShowWaitingForGameToStart(!data.gameStarted);
         });
 
-        socket.on('game_started', () => {
+        socket.on('game_started', (data: any) => {
             setShowWaitingForGameToStart(false);
+            setPlayers(data.players);
+            // setCardsLeftInShoe(data.cardsInShoe);
         });
     }, []);
 
     if (showWaitingForGameToStart) {
         return (
-            <BeforeGameStarts players={playersJoined} gameHash={props.gameHash} currentUserIsCreator={props.currentUserIsCreator} startGame={() => socket.emit('start_game', authData)}></BeforeGameStarts>
+            <BeforeGameStarts players={players} gameHash={props.gameHash} currentUserIsCreator={props.currentUserIsCreator} startGame={() => socket.emit('start_game', authData)}></BeforeGameStarts>
         );
     }
 
     return (
         <>
             {/* teraz w GameTable.tsx jest to co pisałeś */}
-            <GameTable></GameTable>
+            <GameTable players={players} dealerCards={[]}></GameTable>
         </>
     );
 }

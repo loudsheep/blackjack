@@ -4,7 +4,6 @@ import connectMongoDB from "./lib/mongodb";
 import Game from "./models/game";
 import dotenv from "dotenv";
 import path from "path";
-// import { GameData } from "./types/GameDataType";
 import { IncomingData } from "./types/IncomingDataType";
 import { addPlayerToGame, createGamesObject, getGameByRoomId, getGameData, updateGameStartedInDB } from "./game/gameManager";
 import { authenticateUser } from "./lib/auth";
@@ -36,11 +35,20 @@ io.on('connection', (socket) => {
             socket.disconnect();
             return;
         }
+        
+        if (game.gameStarted && !authenticateUser(game, data.token).authenticated) {
+            socket.disconnect();
+            return;
+        }
 
         addPlayerToGame(game, data.token, data.username);
 
         await socket.join(data.roomId);
-        io.to(data.roomId).emit("new_user", game.players);
+        io.to(data.roomId).emit("new_user", { players: game.players, gameStarted: game.gameStarted });
+
+        if (game.cardsLeftInShoe() == 0) {
+            game.generateRandomShoe(Number.parseInt(process.env.DECKS_IN_SHOE) || 6);
+        }
     });
 
     socket.on('start_game', async (data: IncomingData) => {
@@ -55,13 +63,13 @@ io.on('connection', (socket) => {
 
         // await updateGameStartedInDB(game);
 
-        io.to(game.socketRoomId).emit("game_started");
+        io.to(game.socketRoomId).emit("game_started", { players: game.players, cardsInShoe: game.cardsLeftInShoe() });
 
         io.timeout(1000).to(game.socketRoomId).emit("hand_starting");
     });
 
     socket.on("disconnect", () => {
-        console.log("A user disconnected:", socket.id);
+        // disconnect logic
     });
 });
 

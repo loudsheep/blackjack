@@ -71,6 +71,17 @@ export const updateGameStartedInDB = async (game: GameData) => {
     await Game.updateOne({ hash: game.hash }, { gameStarted: game.gameStarted }).exec();
 }
 
-export const prepareGameDataToSend = async (game: GameData) => {
+export const playerDataToSend = async (game: GameData) => {
+//     let players = [];
+//     for (const pl of game.players) {
+//         players
+//     }
+};
 
+export const handStartingData = (game: GameData) => {
+    return {
+        roomId: game.socketRoomId,
+        hash: game.hash,
+        
+    };
 };

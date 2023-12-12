@@ -3,12 +3,14 @@
 import React from 'react';
 import logo from "./images/dealer_shoe.png";
 import '../styles/blackjack.css';
+import Card from '../Card';
 
 type GameTableProps = {
-
+    players: any,
+    dealerCards: any,
 };
 
-export default function GameTable({ }: GameTableProps) {
+export default function GameTable({ players }: GameTableProps) {
     return (
         <>
             <div className="header">
@@ -30,8 +32,17 @@ export default function GameTable({ }: GameTableProps) {
                         <img src={logo.src} alt="aha" />
                     </div>
                 </div>
+                {/* <Card suit='diamonds' value='king' className='h-20'></Card> */}
                 <div className="players">
-                    <div>
+                    {players.map((value: any, idx: any) => (
+                        <div key={idx}>
+                            <div><p>Player {idx + 1}</p><p>cards</p></div>
+                            <div className="cards">
+                                <div className="card"></div>
+                            </div>
+                        </div>
+                    ))}
+                    {/* <div>
                         <div><p>Player 1</p><p>cards</p></div>
                         <div className="cards">
                             <div className="card"></div>
@@ -60,7 +71,7 @@ export default function GameTable({ }: GameTableProps) {
                         <div className="cards">
                             <div className="card"></div>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
             </div>
             <div className="lover_table">

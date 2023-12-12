@@ -1,6 +1,7 @@
 import seedrandom from "seedrandom";
 import { generateDeck } from "../game/cardDeck";
 import { Card } from "../types/CardType";
+import { randomBytes } from "crypto";
 
 type Player = {
     token: string,
@@ -17,6 +18,16 @@ type Settings = {
     maxBet: number,
 };
 
+type Hand = {
+    participants: {
+        token: string,
+        tablePosition: number,
+        startingBet: number,
+    }[],
+    cardsLeftBefore: number,
+    
+};
+
 export class GameData {
     public socketRoomId: string;
     public hash: string;
@@ -24,9 +35,10 @@ export class GameData {
     public gameStarted: boolean;
 
     public players: Player[];
+    public currentHand: Hand;
     public settings: Settings;
 
-    public shoe: Card[];
+    public shoe: Card[] = [];
     private seedsUsed: string[] = [];
 
     constructor(
@@ -49,8 +61,9 @@ export class GameData {
         this.players.push(player);
     }
 
-    public generateRandomShoe(decksUsed: number, seed: string) {
+    public generateRandomShoe(decksUsed: number, seed: string = null) {
         if (decksUsed < 1) return;
+        if (seed === null) seed = randomBytes(10).toString("hex");
 
         let shoe: Card[] = [];
         for (let i = 0; i < decksUsed; i++) {
@@ -66,5 +79,13 @@ export class GameData {
         }
 
         this.shoe = shoe;
+    }
+
+    public cardsLeftInShoe(): number {
+        return this.shoe.length;
+    }
+
+    public drawCard(): Card {
+        return this.shoe.shift();
     }
 }
