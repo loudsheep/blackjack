@@ -13,14 +13,17 @@ type GameTableProps = {
     dealerCards: any,
     socket: Socket,
     authData: SocketAuth,
-    setPlayers: any,
 };
 
-export default function GameTable({ players, socket, authData, setPlayers }: GameTableProps) {
+export default function GameTable({ players, socket, authData, dealerCards }: GameTableProps) {
     const [showBettingOptions, setShowBettingOptions] = useState<boolean>(false);
 
     const placeBet = () => {
         socket.emit('place_bet', { auth: authData, bet: 50 })
+    };
+
+    const deal = () => {
+        socket.emit('deal', { auth: authData });
     };
 
     useEffect(() => {
@@ -52,32 +55,41 @@ export default function GameTable({ players, socket, authData, setPlayers }: Gam
                 <div className="dealer">
                     <div>
                     </div>
-                    <div><p>Dealer</p><p>cards</p>
+                    <div><p>Dealer cards</p>
                         <div className="dealer_cards">
-                            <div className="dealer_card"></div>
+                            {dealerCards.map((value: any, idx: any) => (
+                                <Card suit={value.suit} value={value.value} key={idx}></Card>
+                            ))}
                         </div>
                     </div>
                     <div className="deck">
                         <img src={logo.src} alt="aha" />
                     </div>
                 </div>
-                {/* <Card suit='diamonds' value='king' className='h-20'></Card> */}
                 <div className="players">
                     {players.map((value: any, idx: any) => (
                         <div key={idx}>
-                            <div><p>{value.username}</p><p>cards</p></div>
                             <div className="cards">
-                                <div className="card"></div>
+                                {Array.isArray(value.cards) && (
+                                    <>
+                                        {value.cards.map((hand: any, idx: any) => (
+                                            <div key={idx} className='card'>
+                                                {hand.map((card: any, idx2: any) => (
+                                                    <Card style={{ bottom: (idx2 * 30) + "px", left: (idx2 * 30) + "px" }} suit={card.suit} value={card.value} key={idx2} className={'w-32 absolute z-[' + idx2 + ']'}></Card>
+                                                ))}
+                                            </div>
+                                        ))}
+                                    </>
+                                )}
                             </div>
 
+                            <div><p>{value.username}</p></div>
                             {value.stack}
-
                             {value.roundBet && (
                                 <p>
                                     Bet: {value.roundBet}
                                 </p>
                             )}
-
                             {(value.participates === false) && (
                                 <p className='font-bold text-red-400'>PLAYER DOES NOT PARTICIPATE</p>
                             )}
@@ -96,6 +108,8 @@ export default function GameTable({ players, socket, authData, setPlayers }: Gam
             {showBettingOptions && (
                 <button className='text-black' onClick={placeBet}>Place a bet</button>
             )}
+
+            <button onClick={deal}>Deal card</button>
         </>
     )
 }

@@ -70,7 +70,7 @@ io.on('connection', (socket) => {
         setTimeout(() => io.to(game.socketRoomId).emit("hand_starting", { cardsLeft: game.cardsLeftInShoe(), players: game.getSafePlayersData() }), 2000);
         setTimeout(() => {
             game.startRound();
-            
+
             io.to(game.socketRoomId).emit("betting_ended", { players: game.getSafePlayersData() });
             io.to(game.socketRoomId).emit("preround_update", { players: game.getSafePlayersData() });
         }, 7000);
@@ -92,6 +92,15 @@ io.on('connection', (socket) => {
         if (game.placeBet(data.bet, auth.playerData.token)) {
             io.to(game.socketRoomId).emit('preround_update', { players: game.getSafePlayersData() });
         }
+    });
+
+    socket.on('deal', (data) => {
+        let game = getGameByRoomId(games, data.auth.roomId);
+        let auth = authenticateUser(game, data.auth.token);
+
+        game.dealAllCards();
+
+        io.to(game.socketRoomId).emit('game_update', { players: game.getSafePlayersData(), dealerCards: game.getDealerCards() });
     });
 
     socket.on("disconnect", () => {

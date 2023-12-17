@@ -3,11 +3,11 @@
     overflow: hidden;
 }
 
-html{
+html {
     height: 100vh;
 }
 
-body{
+body {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -30,11 +30,11 @@ body{
     padding-right: 50px;
     background-color: lightsalmon;
     border-radius: 5px;
+    transition: all 0.3s;
 }
 
 .header>div:hover {
     background-color: peachpuff;
-    transition: all 0.3s;
     border-start-start-radius: 10px;
 }
 
@@ -70,11 +70,11 @@ body{
 }
 
 .card {
-    width: 37.79mm;
-    height: 59.92mm;
-    border: 1px solid black;
+    /* width: 37.79mm;
+    height: 59.92mm; */
+    /* border: 1px solid black;
     background-color: brown;
-    box-shadow: 0 3px 6px 6px black;
+    box-shadow: 0 3px 6px 6px black; */
 }
 
 .cards {
@@ -82,8 +82,10 @@ body{
     align-items: center;
     justify-content: center;
     height: 70%;
+    position: relative;
 }
-.dealer_card{
+
+.dealer_card {
     width: 30mm;
     height: 47.568mm;
     border: 1px solid black;
@@ -92,7 +94,8 @@ body{
     position: absolute;
     top: 100px;
 }
-.dealer_cards{
+
+.dealer_cards {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -107,6 +110,7 @@ body{
 
 .players {
     display: flex;
+    flex-direction: row-reverse;
     width: 100%;
     height: 70%;
 }
@@ -134,9 +138,10 @@ body{
     width: 30%;
 }
 
-.lover_table{
+.lover_table {
     height: 10%;
 }
+
 .action_buttons_space {
     align-items: center;
     display: flex;
@@ -148,47 +153,54 @@ body{
     background-color: rgba(0, 0, 0, 0.5);
     border-radius: 6rem 6rem 0 0;
 }
+
 .action_buttons_space>button {
     margin-right: 7px;
     margin-left: 7px;
     text-align: center;
-    font-family:'Arial Narrow Bold', sans-serif;
+    font-family: 'Arial Narrow Bold', sans-serif;
     font-weight: 600;
     border-radius: 20px;
     width: 130px;
     height: 50px;
     transition: all 0.3s;
 }
+
 .action_buttons_space>button:nth-child(n):hover {
     transform: scale(110%);
     transition: all 0.3s;
 }
+
 .action_buttons_space>button:nth-child(n):active {
     opacity: 0.8;
     border: 4px solid darkgrey;
     color: darkgray;
     transition: all 0s;
 }
+
 .action_buttons_space>button:nth-child(1) {
     background-color: rgba(255, 255, 166, 0.3);
     border: 4px solid yellow;
     text-shadow: 0 0 5px black;
     color: yellow;
 }
+
 .action_buttons_space>button:nth-child(2) {
-    background-color: rgba(164, 255, 158,0.3);
+    background-color: rgba(164, 255, 158, 0.3);
     border: 4px solid rgb(16, 255, 0);
     text-shadow: 0 0 5px black;
     color: rgb(16, 255, 0);
 }
+
 .action_buttons_space>button:nth-child(3) {
-    background-color: rgba(255, 136, 136,0.3);
+    background-color: rgba(255, 136, 136, 0.3);
     border: 4px solid red;
     text-shadow: 0 0 5px black;
     color: red;
 }
+
 .action_buttons_space>button:nth-child(4) {
-    background-color: rgba(126, 255, 252,0.3);
+    background-color: rgba(126, 255, 252, 0.3);
     border: 4px solid rgb(0, 255, 249);
     text-shadow: 0 0 5px black;
     color: rgb(0, 255, 249);

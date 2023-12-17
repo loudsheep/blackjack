@@ -25,6 +25,7 @@ type NewUserType = {
 export default function BlackjackGame(props: BlackjacjGameProps) {
     const [showWaitingForGameToStart, setShowWaitingForGameToStart] = useState<boolean>(true);
     const [players, setPlayers] = useState<any[]>([]);
+    const [dealerCards, setDealerCards] = useState<any[]>([]);
     // const [cardLeftInShoe, setCardsLeftInShoe] = useState<number>(0);
 
     // let socket = io("http://localhost:3001");
@@ -54,15 +55,22 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
         });
 
         socket.on('preround_update', (data) => {
-            console.log("UPDATE", data);
+            console.log("PRE-UPDATE", data);
 
             setPlayers(data.players);
+        });
+
+        socket.on('game_update', (data) => {
+            console.log("GAME-UPDATE", data);
+            setPlayers(data.players);
+            setDealerCards(data.dealerCards);
         });
 
         return () => {
             socket.off('new_user');
             socket.off('game_started');
             socket.off('preround_update');
+            socket.off('game_update');
 
             socket.disconnect();
         };
@@ -77,7 +85,7 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
     return (
         <>
             {/* teraz w GameTable.tsx jest to co pisałeś */}
-            <GameTable players={players} dealerCards={[]} socket={socket} authData={authData} setPlayers={setPlayers}></GameTable>
+            <GameTable players={players} dealerCards={dealerCards} socket={socket} authData={authData}></GameTable>
         </>
     );
 }

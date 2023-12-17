@@ -46,6 +46,7 @@ export class GameData {
 
     public shoe: Card[] = [];
     private seedsUsed: string[] = [];
+    public dealerCards: Card[] = [];
 
     constructor(
         socketRoomId: string,
@@ -149,6 +150,7 @@ export class GameData {
     }
 
     public startRound() {
+        this.dealerCards = [];
         this.players.forEach((pl) => {
             if (pl.participates !== true) {
                 pl.participates = false;
@@ -174,5 +176,41 @@ export class GameData {
 
         this.currentHand.cardsLeftAfter--;
         return this.shoe.shift();
+    }
+
+    public dealAllCards() {
+        for (let i = 0; i < 2; i++) {
+            for (const player of this.players) {
+                if (player.participates !== true) continue;
+
+                if (player.cards.length == 0) {
+                    player.cards.push([]);
+                }
+
+                player.cards[0].push(this.drawCard());
+            }
+
+            let dC = this.drawCard();
+            if (i == 1) dC.isBack = true;
+            this.dealerCards.push(dC);
+        }
+    }
+
+    public getDealerCards() {
+        let cards = [];
+        for (const card of this.dealerCards) {
+            if (card.isBack) {
+                cards.push({
+                    suit: 'back'
+                });
+            } else {
+                cards.push({
+                    suit: card.suit,
+                    value: card.value,
+                    numValue: card.numValue,
+                });
+            }
+        }
+        return cards;
     }
 }
