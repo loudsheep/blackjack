@@ -71,8 +71,11 @@ io.on('connection', (socket) => {
         setTimeout(() => {
             game.startRound();
 
-            io.to(game.socketRoomId).emit("betting_ended", { players: game.getSafePlayersData() });
+            io.to(game.socketRoomId).emit("betting_ended");
             io.to(game.socketRoomId).emit("preround_update", { players: game.getSafePlayersData() });
+
+            game.dealAllCards();
+            io.to(game.socketRoomId).emit('game_update', { players: game.getSafePlayersData(), dealerCards: game.getDealerCards() });
         }, 7000);
         // io.to(game.socketRoomId).timeout(2000).emit("hand_starting", { cardsLeft: game.cardsLeftInShoe(), players: game.getSafePlayersData() });
     });

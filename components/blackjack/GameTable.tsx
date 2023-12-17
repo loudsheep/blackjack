@@ -7,6 +7,7 @@ import Card from '../Card';
 import { Socket } from 'socket.io-client';
 import { SocketAuth } from '@/types/SocketAuthType';
 import Image from 'next/image';
+import BetForm from '../BetForm';
 
 type GameTableProps = {
     players: any,
@@ -17,9 +18,10 @@ type GameTableProps = {
 
 export default function GameTable({ players, socket, authData, dealerCards }: GameTableProps) {
     const [showBettingOptions, setShowBettingOptions] = useState<boolean>(false);
+    const [showPlayerActions, setShowPlayerActions] = useState<boolean>(false);
 
-    const placeBet = () => {
-        socket.emit('place_bet', { auth: authData, bet: 50 })
+    const placeBet = (value: number) => {
+        socket.emit('place_bet', { auth: authData, bet: value })
     };
 
     const deal = () => {
@@ -44,7 +46,7 @@ export default function GameTable({ players, socket, authData, dealerCards }: Ga
     }, [socket]);
 
     return (
-        <>
+        <div className='body'>
             <div className="header">
                 <div>Game</div>
                 <div>Shop</div>
@@ -58,7 +60,7 @@ export default function GameTable({ players, socket, authData, dealerCards }: Ga
                     <div><p>Dealer cards</p>
                         <div className="dealer_cards">
                             {dealerCards.map((value: any, idx: any) => (
-                                <Card suit={value.suit} value={value.value} key={idx}></Card>
+                                <Card suit={value.suit} value={value.value} key={idx} className='ml-1'></Card>
                             ))}
                         </div>
                     </div>
@@ -97,19 +99,23 @@ export default function GameTable({ players, socket, authData, dealerCards }: Ga
                     ))}
                 </div>
             </div>
-            <div className="lover_table">
-                <div className="action_buttons_space">
-                    <button>DOUBLE</button>
-                    <button>SPLIT</button>
-                    <button>STAND</button>
-                    <button>HIT</button>
+
+            {showPlayerActions && (
+                <div className="lover_table">
+                    <div className="action_buttons_space">
+                        <button>DOUBLE</button>
+                        <button>SPLIT</button>
+                        <button>STAND</button>
+                        <button>HIT</button>
+                    </div>
                 </div>
-            </div>
-            {showBettingOptions && (
-                <button className='text-black' onClick={placeBet}>Place a bet</button>
             )}
 
-            <button onClick={deal}>Deal card</button>
-        </>
+            {showBettingOptions && (
+                <BetForm minValue={0} maxValue={1500} startValue={0} step={10} callback={placeBet} confirmButtonText='Place bet' className='w-1/2'></BetForm>
+            )}
+
+            {/* <button onClick={deal}>Deal card</button> */}
+        </div>
     )
 }

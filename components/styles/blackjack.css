@@ -7,11 +7,11 @@ html {
     height: 100vh;
 }
 
-body {
+.body {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    /* background-image: url("../blackjack/images/wooden_floor.png"); */
+    height: 100vh;
+    background-image: url("../blackjack/images/wooden_floor.png");
 }
 
 .header {
@@ -69,13 +69,13 @@ body {
     margin-top: 11%;
 }
 
-.card {
-    /* width: 37.79mm;
-    height: 59.92mm; */
-    /* border: 1px solid black;
+/* .card {
+    width: 37.79mm;
+    height: 59.92mm;
+    border: 1px solid black;
     background-color: brown;
-    box-shadow: 0 3px 6px 6px black; */
-}
+    box-shadow: 0 3px 6px 6px black;
+} */
 
 .cards {
     display: flex;
