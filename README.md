@@ -18,9 +18,11 @@ Follow these simple steps to set up the project locally:
    cd blackjack
    ```
 
-3. Install dependencies using your preferred package manager. If you're using npm:
+3. Install dependencies in root and SOCKET_SERVER folder:
 
    ```bash
+   npm install
+   cd ./SOCKET_SERVER
    npm install
    ```
 
@@ -40,10 +42,14 @@ Follow these simple steps to set up the project locally:
 
 ## 🚀 Running Locally
 
-Now that you have everything set up, run the project locally with the following command:
+Now that you have everything set up, run the project locally with the following commands:
 
 ```bash
 npm run dev
+```
+
+```bash
+npm run node
 ```
 
 Visit [http://localhost:3000](http://localhost:3000) in your browser to play the Online Blackjack Game.
