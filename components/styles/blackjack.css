@@ -11,7 +11,7 @@ body{
     display: flex;
     flex-direction: column;
     height: 100%;
-    background-image: url("../blackjack/images/wooden_floor.png");
+    /* background-image: url("../blackjack/images/wooden_floor.png"); */
 }
 
 .header {

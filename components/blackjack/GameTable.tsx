@@ -1,16 +1,45 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import logo from "./images/dealer_shoe.png";
 import '../styles/blackjack.css';
 import Card from '../Card';
+import { Socket } from 'socket.io-client';
+import { SocketAuth } from '@/types/SocketAuthType';
+import Image from 'next/image';
 
 type GameTableProps = {
     players: any,
     dealerCards: any,
+    socket: Socket,
+    authData: SocketAuth,
+    setPlayers: any,
 };
 
-export default function GameTable({ players }: GameTableProps) {
+export default function GameTable({ players, socket, authData, setPlayers }: GameTableProps) {
+    const [showBettingOptions, setShowBettingOptions] = useState<boolean>(false);
+
+    const placeBet = () => {
+        socket.emit('place_bet', { auth: authData, bet: 50 })
+    };
+
+    useEffect(() => {
+        socket.on('hand_starting', (data) => {
+            console.log(data, "STARTING");
+
+            setShowBettingOptions(true);
+        });
+
+        socket.on('betting_ended', (data) => {
+            setShowBettingOptions(false);
+        });
+
+        return () => {
+            socket.off('hand_starting');
+            socket.off('betting_ended');
+        };
+    }, [socket]);
+
     return (
         <>
             <div className="header">
@@ -36,42 +65,24 @@ export default function GameTable({ players }: GameTableProps) {
                 <div className="players">
                     {players.map((value: any, idx: any) => (
                         <div key={idx}>
-                            <div><p>Player {idx + 1}</p><p>cards</p></div>
+                            <div><p>{value.username}</p><p>cards</p></div>
                             <div className="cards">
                                 <div className="card"></div>
                             </div>
+
+                            {value.stack}
+
+                            {value.roundBet && (
+                                <p>
+                                    Bet: {value.roundBet}
+                                </p>
+                            )}
+
+                            {(value.participates === false) && (
+                                <p className='font-bold text-red-400'>PLAYER DOES NOT PARTICIPATE</p>
+                            )}
                         </div>
                     ))}
-                    {/* <div>
-                        <div><p>Player 1</p><p>cards</p></div>
-                        <div className="cards">
-                            <div className="card"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div><p>Player 2</p><p>cards</p></div>
-                        <div className="cards">
-                            <div className="card"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div><p>Player 3</p><p>cards</p></div>
-                        <div className="cards">
-                            <div className="card"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div><p>Player 4</p><p>cards</p></div>
-                        <div className="cards">
-                            <div className="card"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div><p>Player 5</p><p>cards</p></div>
-                        <div className="cards">
-                            <div className="card"></div>
-                        </div>
-                    </div> */}
                 </div>
             </div>
             <div className="lover_table">
@@ -82,6 +93,9 @@ export default function GameTable({ players }: GameTableProps) {
                     <button>HIT</button>
                 </div>
             </div>
+            {showBettingOptions && (
+                <button className='text-black' onClick={placeBet}>Place a bet</button>
+            )}
         </>
     )
 }

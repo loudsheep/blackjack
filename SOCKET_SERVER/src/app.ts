@@ -35,7 +35,7 @@ io.on('connection', (socket) => {
             socket.disconnect();
             return;
         }
-        
+
         if (game.gameStarted && !authenticateUser(game, data.token).authenticated) {
             socket.disconnect();
             return;
@@ -44,7 +44,7 @@ io.on('connection', (socket) => {
         addPlayerToGame(game, data.token, data.username);
 
         await socket.join(data.roomId);
-        io.to(data.roomId).emit("new_user", { players: game.players, gameStarted: game.gameStarted });
+        io.to(data.roomId).emit("new_user", { players: game.getSafePlayersData(), gameStarted: game.gameStarted });
 
         if (game.cardsLeftInShoe() == 0) {
             game.generateRandomShoe(Number.parseInt(process.env.DECKS_IN_SHOE) || 6);
@@ -65,7 +65,33 @@ io.on('connection', (socket) => {
 
         io.to(game.socketRoomId).emit("game_started", { players: game.players, cardsInShoe: game.cardsLeftInShoe() });
 
-        io.timeout(1000).to(game.socketRoomId).emit("hand_starting");
+        game.resetCurrentHand();
+
+        setTimeout(() => io.to(game.socketRoomId).emit("hand_starting", { cardsLeft: game.cardsLeftInShoe(), players: game.getSafePlayersData() }), 2000);
+        setTimeout(() => {
+            game.startRound();
+            
+            io.to(game.socketRoomId).emit("betting_ended", { players: game.getSafePlayersData() });
+            io.to(game.socketRoomId).emit("preround_update", { players: game.getSafePlayersData() });
+        }, 7000);
+        // io.to(game.socketRoomId).timeout(2000).emit("hand_starting", { cardsLeft: game.cardsLeftInShoe(), players: game.getSafePlayersData() });
+    });
+
+    socket.on('place_bet', (data) => {
+        let game = getGameByRoomId(games, data.auth.roomId);
+        let auth = authenticateUser(game, data.auth.token);
+
+        if (!auth.authenticated) {
+            socket.disconnect();
+            return;
+        }
+        if (data.bet > auth.playerData.stack) {
+            return;
+        }
+
+        if (game.placeBet(data.bet, auth.playerData.token)) {
+            io.to(game.socketRoomId).emit('preround_update', { players: game.getSafePlayersData() });
+        }
     });
 
     socket.on("disconnect", () => {
