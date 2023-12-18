@@ -14,6 +14,7 @@ export type Player = {
     roundBet?: number,
     cards?: Card[][],
     participates?: boolean;
+    isThisPlayersTurn?: boolean,
 };
 
 type Settings = {
@@ -116,6 +117,7 @@ export class GameData {
             pl.cards = undefined;
             pl.roundBet = undefined;
             pl.participates = undefined;
+            pl.isThisPlayersTurn = undefined;
         });
     }
 
@@ -212,5 +214,14 @@ export class GameData {
             }
         }
         return cards;
+    }
+
+    public gameUpdateData() {
+        return {
+            players: this.getSafePlayersData(),
+            gameStarted: this.gameStarted,
+            dealerCards: this.getDealerCards(),
+            cardsLeft: this.cardsLeftInShoe(),
+        };
     }
 }

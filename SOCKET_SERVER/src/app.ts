@@ -44,7 +44,7 @@ io.on('connection', (socket) => {
         addPlayerToGame(game, data.token, data.username);
 
         await socket.join(data.roomId);
-        io.to(data.roomId).emit("new_user", { players: game.getSafePlayersData(), gameStarted: game.gameStarted });
+        io.to(data.roomId).emit("new_user", game.gameUpdateData());
 
         if (game.cardsLeftInShoe() == 0) {
             game.generateRandomShoe(Number.parseInt(process.env.DECKS_IN_SHOE) || 6);
@@ -63,21 +63,21 @@ io.on('connection', (socket) => {
 
         // await updateGameStartedInDB(game);
 
-        io.to(game.socketRoomId).emit("game_started", { players: game.players, cardsInShoe: game.cardsLeftInShoe() });
+        io.to(game.socketRoomId).emit("game_started", game.gameUpdateData());
 
         game.resetCurrentHand();
 
-        setTimeout(() => io.to(game.socketRoomId).emit("hand_starting", { cardsLeft: game.cardsLeftInShoe(), players: game.getSafePlayersData() }), 2000);
+        setTimeout(() => io.to(game.socketRoomId).emit("hand_starting", game.gameUpdateData()), 2_000);
         setTimeout(() => {
             game.startRound();
 
             io.to(game.socketRoomId).emit("betting_ended");
-            io.to(game.socketRoomId).emit("preround_update", { players: game.getSafePlayersData() });
+            io.to(game.socketRoomId).emit("preround_update", game.gameUpdateData());
 
             game.dealAllCards();
-            io.to(game.socketRoomId).emit('game_update', { players: game.getSafePlayersData(), dealerCards: game.getDealerCards() });
-        }, 7000);
-        // io.to(game.socketRoomId).timeout(2000).emit("hand_starting", { cardsLeft: game.cardsLeftInShoe(), players: game.getSafePlayersData() });
+            io.to(game.socketRoomId).emit('game_update', game.gameUpdateData());
+        }, 10_000);
+        // io.to(game.socketRoomId).timeout(2000).emit("hand_starting", game.gameUpdateData());
     });
 
     socket.on('place_bet', (data) => {
@@ -93,17 +93,8 @@ io.on('connection', (socket) => {
         }
 
         if (game.placeBet(data.bet, auth.playerData.token)) {
-            io.to(game.socketRoomId).emit('preround_update', { players: game.getSafePlayersData() });
+            io.to(game.socketRoomId).emit('preround_update', game.gameUpdateData());
         }
-    });
-
-    socket.on('deal', (data) => {
-        let game = getGameByRoomId(games, data.auth.roomId);
-        let auth = authenticateUser(game, data.auth.token);
-
-        game.dealAllCards();
-
-        io.to(game.socketRoomId).emit('game_update', { players: game.getSafePlayersData(), dealerCards: game.getDealerCards() });
     });
 
     socket.on("disconnect", () => {

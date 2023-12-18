@@ -12,16 +12,18 @@ import BetForm from '../BetForm';
 type GameTableProps = {
     players: any,
     dealerCards: any,
+    currentPlayer: any,
     socket: Socket,
     authData: SocketAuth,
 };
 
-export default function GameTable({ players, socket, authData, dealerCards }: GameTableProps) {
+export default function GameTable({ players, socket, authData, dealerCards, currentPlayer }: GameTableProps) {
     const [showBettingOptions, setShowBettingOptions] = useState<boolean>(false);
     const [showPlayerActions, setShowPlayerActions] = useState<boolean>(false);
 
     const placeBet = (value: number) => {
-        socket.emit('place_bet', { auth: authData, bet: value })
+        socket.emit('place_bet', { auth: authData, bet: value });
+        setShowBettingOptions(false);
     };
 
     const deal = () => {
@@ -112,7 +114,7 @@ export default function GameTable({ players, socket, authData, dealerCards }: Ga
             )}
 
             {showBettingOptions && (
-                <BetForm minValue={0} maxValue={1500} startValue={0} step={10} callback={placeBet} confirmButtonText='Place bet' className='w-1/2'></BetForm>
+                <BetForm minValue={0} maxValue={currentPlayer.stack} startValue={0} step={10} callback={placeBet} confirmButtonText='Place bet' className='w-1/2'></BetForm>
             )}
 
             {/* <button onClick={deal}>Deal card</button> */}
