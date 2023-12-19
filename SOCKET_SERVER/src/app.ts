@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 import path from "path";
 import { IncomingData } from "./types/IncomingDataType";
 import { addPlayerToGame, createGamesObject, getGameByRoomId, getGameData, updateGameStartedInDB } from "./game/gameManager";
-import { authenticateUser } from "./lib/auth";
+import { authenticateUser, sendPlayerDataUpdate } from "./lib/auth";
 import { generateDeck } from "./game/cardDeck";
 
 dotenv.config({ path: path.resolve(__dirname + "../../../.env") });
@@ -23,6 +23,10 @@ const io = new Server(httpServer, {
 let games = createGamesObject();
 
 io.on('connection', (socket) => {
+
+    const emitEvent = (roomId: string, event: string, data: any) => {
+        io.to(roomId).emit(event, data);
+    };
 
     socket.on('join_room', async (data: IncomingData) => {
         let game = getGameByRoomId(games, data.roomId);
@@ -43,8 +47,10 @@ io.on('connection', (socket) => {
 
         addPlayerToGame(game, data.token, data.username);
 
-        await socket.join(data.roomId);
+        await socket.join([data.roomId, data.token]);
+
         io.to(data.roomId).emit("new_user", game.gameUpdateData());
+        sendPlayerDataUpdate(game, emitEvent);
 
         if (game.cardsLeftInShoe() == 0) {
             game.generateRandomShoe(Number.parseInt(process.env.DECKS_IN_SHOE) || 6);
@@ -67,6 +73,7 @@ io.on('connection', (socket) => {
 
         game.resetCurrentHand();
 
+        sendPlayerDataUpdate(game, emitEvent);
         setTimeout(() => io.to(game.socketRoomId).emit("hand_starting", game.gameUpdateData()), 2_000);
         setTimeout(() => {
             game.startRound();
@@ -93,6 +100,7 @@ io.on('connection', (socket) => {
         }
 
         if (game.placeBet(data.bet, auth.playerData.token)) {
+            sendPlayerDataUpdate(game, emitEvent);
             io.to(game.socketRoomId).emit('preround_update', game.gameUpdateData());
         }
     });

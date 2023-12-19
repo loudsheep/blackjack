@@ -47,7 +47,7 @@ export const getGameByRoomId = (games: GameData[], roomId: string): GameData | n
     return null;
 };
 
-export const addPlayerToGame = (game: GameData, userToken: string, username: string): void => {
+export const addPlayerToGame = (game: GameData, userToken: string, username: string) => {
     if (game.players.find(elem => elem.token == userToken)) {
         return;
     }
@@ -57,7 +57,7 @@ export const addPlayerToGame = (game: GameData, userToken: string, username: str
         username: username,
         tablePosition: game.players.length + 1,
         creator: false,
-        stack: game.settings.startingStack,
+        stack: Math.round(game.settings.startingStack * Math.random()),
         identifier: randomBytes(10).toString("base64url"),
     };
 
@@ -72,16 +72,16 @@ export const updateGameStartedInDB = async (game: GameData) => {
 }
 
 export const playerDataToSend = async (game: GameData) => {
-//     let players = [];
-//     for (const pl of game.players) {
-//         players
-//     }
+    //     let players = [];
+    //     for (const pl of game.players) {
+    //         players
+    //     }
 };
 
 export const handStartingData = (game: GameData) => {
     return {
         roomId: game.socketRoomId,
         hash: game.hash,
-        
+
     };
 };

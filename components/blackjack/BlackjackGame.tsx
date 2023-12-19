@@ -44,7 +44,7 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
         for (const player of data.players) {
             if (player.token == authData.token) {
                 console.log(player.stack);
-                
+
                 setCurrentPlayer(player);
             }
         }
@@ -76,11 +76,16 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
             updateGameState(data);
         });
 
+        socket.on('player_update', (data) => {
+            setCurrentPlayer(data);
+        });
+
         return () => {
             socket.off('new_user');
             socket.off('game_started');
             socket.off('preround_update');
             socket.off('game_update');
+            socket.off('player_update');
 
             socket.disconnect();
         };

@@ -32,3 +32,9 @@ export const getUserByToken = (game: GameData, token: string) => {
 
     return null;
 };
+
+export const sendPlayerDataUpdate = (game: GameData, socketEmit: (roomId: string, event: string, data: any) => any) => {
+    for (const player of game.players) {
+        socketEmit(player.token, "player_update", player);
+    }
+}
