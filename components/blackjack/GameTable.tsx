@@ -8,6 +8,7 @@ import { Socket } from 'socket.io-client';
 import { SocketAuth } from '@/types/SocketAuthType';
 import Image from 'next/image';
 import BetForm from '../BetForm';
+import Countdown from 'react-countdown';
 
 type GameTableProps = {
     players: any,
@@ -20,14 +21,11 @@ type GameTableProps = {
 export default function GameTable({ players, socket, authData, dealerCards, currentPlayer }: GameTableProps) {
     const [showBettingOptions, setShowBettingOptions] = useState<boolean>(false);
     const [showPlayerActions, setShowPlayerActions] = useState<boolean>(false);
+    const [betCountdown, setBetCountdown] = useState<number | null>(null);
 
     const placeBet = (value: number) => {
         socket.emit('place_bet', { auth: authData, bet: value });
         setShowBettingOptions(false);
-    };
-
-    const deal = () => {
-        socket.emit('deal', { auth: authData });
     };
 
     useEffect(() => {
@@ -37,13 +35,19 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
             setShowBettingOptions(true);
         });
 
-        socket.on('betting_ended', (data) => {
+        socket.on('betting_ended', () => {
             setShowBettingOptions(false);
+            setBetCountdown(null);
+        });
+
+        socket.on('bet_timeout_started', (data) => {
+            setBetCountdown(Date.now() + data.time);
         });
 
         return () => {
             socket.off('hand_starting');
             socket.off('betting_ended');
+            socket.off('bet_timeout_started');
         };
     }, [socket]);
 
@@ -117,7 +121,9 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
                 <BetForm minValue={0} maxValue={currentPlayer.stack} startValue={0} step={10} callback={placeBet} confirmButtonText='Place bet' className='w-1/2'></BetForm>
             )}
 
-            {/* <button onClick={deal}>Deal card</button> */}
+            {betCountdown !== null && (
+                <Countdown date={betCountdown} precision={100} key={betCountdown}></Countdown>
+            )}
         </div>
     )
 }
