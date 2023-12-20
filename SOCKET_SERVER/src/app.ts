@@ -1,13 +1,13 @@
 import http from "http";
 import { Server } from "socket.io";
-import connectMongoDB from "./lib/mongodb";
-import Game from "./models/game";
 import dotenv from "dotenv";
 import path from "path";
 import { IncomingData } from "./types/IncomingDataType";
-import { addPlayerToGame, createGamesObject, getGameByRoomId, getGameData, updateGameStartedInDB } from "./game/gameManager";
+import { addPlayerToGame, createGamesObject, getGameByRoomId, getGameData } from "./game/gameDataManager";
 import { authenticateUser, sendPlayerDataUpdate } from "./lib/auth";
-import { generateDeck } from "./game/cardDeck";
+import { cardsLeftInShoe, generateRandomShoe } from "./game/cards";
+import { placeBet, setTimeoutForBetting } from "./game/bets";
+import { resetStateBeforeNextRound, startRound } from "./game/round";
 
 dotenv.config({ path: path.resolve(__dirname + "../../../.env") });
 const httpServer = http.createServer();
@@ -23,23 +23,25 @@ const io = new Server(httpServer, {
 let games = createGamesObject();
 
 io.on('connection', (socket) => {
-
-    const emitEvent = (roomId: string, event: string, data: any) => {
+    const emitEvent = (roomId: string | string[], event: string, data: any) => {
         io.to(roomId).emit(event, data);
     };
 
-    socket.on('join_room', async (data: IncomingData) => {
+    socket.on('join_room', async (data) => {
+        // check if game exists, if not get the game data from mongodb
         let game = getGameByRoomId(games, data.roomId);
         if (!game) {
             await getGameData(games, data.hash);
         }
 
+        // after getting data from db check if it's valid
         game = getGameByRoomId(games, data.roomId);
         if (!game) {
             socket.disconnect();
             return;
         }
 
+        // if game already started and the user connecting is not authenticated disconnect and return
         if (game.gameStarted && !authenticateUser(game, data.token).authenticated) {
             socket.disconnect();
             return;
@@ -47,13 +49,17 @@ io.on('connection', (socket) => {
 
         addPlayerToGame(game, data.token, data.username);
 
+        // join 2 rooms. First is general room for every player, and second is secifically for this user to send their updates
         await socket.join([data.roomId, data.token]);
 
+        // new player in room, broadcast this info to the rest of players
         io.to(data.roomId).emit("new_user", game.gameUpdateData());
+        // send user data to current player
         sendPlayerDataUpdate(game, emitEvent);
 
-        if (game.cardsLeftInShoe() == 0) {
-            game.generateRandomShoe(Number.parseInt(process.env.DECKS_IN_SHOE) || 6);
+        // if the game does not have a shoe generated then make one
+        if (cardsLeftInShoe(game) == 0) {
+            generateRandomShoe(game, Number.parseInt(process.env.DECKS_IN_SHOE) || 6);
         }
     });
 
@@ -61,31 +67,37 @@ io.on('connection', (socket) => {
         let game = getGameByRoomId(games, data.roomId);
         let auth = authenticateUser(game, data.token);
 
+        // do nothing if the request is comming from not authenticated user or not a creator
         if (!auth.authenticated || !auth.isCreator) {
             return;
         }
 
         game.gameStarted = true;
-
         // await updateGameStartedInDB(game);
 
+        // emit game started event for all players
         io.to(game.socketRoomId).emit("game_started", game.gameUpdateData());
 
-        game.resetCurrentHand();
+        resetStateBeforeNextRound(game);
 
         sendPlayerDataUpdate(game, emitEvent);
+
         setTimeout(() => io.to(game.socketRoomId).emit("hand_starting", game.gameUpdateData()), 2_000);
-        setTimeout(() => {
-            game.startRound();
-
-            io.to(game.socketRoomId).emit("betting_ended");
-            io.to(game.socketRoomId).emit("preround_update", game.gameUpdateData());
-
-            game.dealAllCards();
-            io.to(game.socketRoomId).emit('game_update', game.gameUpdateData());
-        }, 10_000);
-        // io.to(game.socketRoomId).timeout(2000).emit("hand_starting", game.gameUpdateData());
     });
+
+    // socket.on('pause_game', async (data) => {
+    //     let game = getGameByRoomId(games, data.roomId);
+    //     let auth = authenticateUser(game, data.token);
+
+    //     if (!auth.authenticated || !auth.isCreator) {
+    //         return;
+    //     }
+
+    //     game.pauseRequested = true;
+    //     // await updateGameStartedInDB(game);
+
+    //     io.to(game.socketRoomId).emit('pause_request');
+    // });
 
     socket.on('place_bet', (data) => {
         let game = getGameByRoomId(games, data.auth.roomId);
@@ -99,15 +111,24 @@ io.on('connection', (socket) => {
             return;
         }
 
-        if (game.placeBet(data.bet, auth.playerData.token)) {
+        if (placeBet(game, data.bet, auth.playerData.token)) {
+
+            setTimeoutForBetting(game, () => {
+                startRound(game);
+                io.to(game.socketRoomId).emit("betting_ended");
+
+                game.dealAllCards();
+                io.to(game.socketRoomId).emit('game_update', game.gameUpdateData());
+            }, 8000, () => io.to(game.socketRoomId).emit('bet_timeout_started', { time: 8000 }));
+
             sendPlayerDataUpdate(game, emitEvent);
             io.to(game.socketRoomId).emit('preround_update', game.gameUpdateData());
         }
     });
 
-    socket.on("disconnect", () => {
-        // disconnect logic
-    });
+    // socket.on("disconnect", () => {
+    //     // disconnect logic
+    // });
 });
 
 

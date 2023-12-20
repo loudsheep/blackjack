@@ -1,4 +1,5 @@
-import { GameData, Player } from "../models/gameData";
+import { GameData } from "../game/gameData";
+import { Player } from "../game/players";
 
 type AuthResultType = {
     authenticated: boolean,
@@ -19,18 +20,6 @@ export const authenticateUser = (game: GameData, token: string): AuthResultType 
         }
     }
     return { authenticated: false, isCreator: false };
-};
-
-export const getUserByToken = (game: GameData, token: string) => {
-    if (game == null) return null;
-
-    for (const pl of game.players) {
-        if (pl.token === token) {
-            return pl;
-        }
-    }
-
-    return null;
 };
 
 export const sendPlayerDataUpdate = (game: GameData, socketEmit: (roomId: string, event: string, data: any) => any) => {
