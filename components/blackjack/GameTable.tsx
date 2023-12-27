@@ -28,6 +28,10 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
         setShowBettingOptions(false);
     };
 
+    const takeAction = (action: string) => {
+        socket.emit('take_action', { auth: authData, action })
+    };
+
     useEffect(() => {
         socket.on('hand_starting', (data) => {
             console.log(data, "STARTING");
@@ -44,10 +48,15 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
             setBetCountdown(Date.now() + data.time);
         });
 
+        socket.on('my_turn', (data) => {
+            setShowPlayerActions(true);
+        });
+
         return () => {
             socket.off('hand_starting');
             socket.off('betting_ended');
             socket.off('bet_timeout_started');
+            socket.off('my_turn');
         };
     }, [socket]);
 
@@ -63,10 +72,11 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
                 <div className="dealer">
                     <div>
                     </div>
-                    <div><p>Dealer cards</p>
+                    <div>
+                        <p>Dealer cards</p>
                         <div className="dealer_cards">
                             {dealerCards.map((value: any, idx: any) => (
-                                <Card suit={value.suit} value={value.value} key={idx} className='ml-1'></Card>
+                                <Card suit={value.suit} value={value.value} key={idx} className='ml-1 h-full'></Card>
                             ))}
                         </div>
                     </div>
@@ -78,12 +88,12 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
                     {players.map((value: any, idx: any) => (
                         <div key={idx}>
                             <div className="cards">
-                                {Array.isArray(value.cards) && (
+                                {Array.isArray(value.hands) && (
                                     <>
-                                        {value.cards.map((hand: any, idx: any) => (
-                                            <div key={idx} className='card'>
-                                                {hand.map((card: any, idx2: any) => (
-                                                    <Card style={{ bottom: (idx2 * 30) + "px", left: (idx2 * 30) + "px" }} suit={card.suit} value={card.value} key={idx2} className={'w-32 absolute z-[' + idx2 + ']'}></Card>
+                                        {value.hands.map((hand: any, idx: any) => (
+                                            <div key={idx} className='hand'>
+                                                {hand.cards.map((card: any, idx2: any) => (
+                                                    <Card style={{ bottom: (idx2 * 20) + "px", left: (idx2 * 20) + "px" }} suit={card.suit} value={card.value} key={idx2} className={'w-32 absolute z-[' + idx2 + ']'}></Card>
                                                 ))}
                                             </div>
                                         ))}
@@ -109,10 +119,10 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
             {showPlayerActions && (
                 <div className="lover_table">
                     <div className="action_buttons_space">
-                        <button>DOUBLE</button>
-                        <button>SPLIT</button>
-                        <button>STAND</button>
-                        <button>HIT</button>
+                        <button onClick={() => takeAction('double')}>DOUBLE</button>
+                        <button onClick={() => takeAction('split')}>SPLIT</button>
+                        <button onClick={() => takeAction('stand')}>STAND</button>
+                        <button onClick={() => takeAction('hit')}>HIT</button>
                     </div>
                 </div>
             )}

@@ -1,6 +1,7 @@
 import { cardsLeftInShoe, drawCard } from "./cards";
 import { Card } from "../types/CardType";
 import { Player, getParticipants, getPlayer, getSafePlayersData } from "./players";
+import { Hand } from "./hand";
 
 type Settings = {
     startingStack: number,
@@ -8,10 +9,12 @@ type Settings = {
     maxBet: number,
 };
 
-type Hand = {
+type Round = {
     participants: Player[],
     cardsLeftBefore: number,
     cardsLeftAfter: number,
+    currentPlayerIndex?: number;
+    currentPlayerHandIndex?: number;
 };
 
 export class GameData {
@@ -23,7 +26,7 @@ export class GameData {
 
     // players, settings, currentRound
     public players: Player[];
-    public currentRound: Hand;
+    public currentRound: Round;
     public settings: Settings;
 
     public shoe: Card[] = [];
@@ -34,6 +37,7 @@ export class GameData {
 
     // timeouts
     public betsClosedTimeout: any = null;
+    public playerActionTimeout: any = null;
 
     constructor(
         socketRoomId: string,
@@ -52,35 +56,35 @@ export class GameData {
     }
 
     // TODO finish this
-    public getPlayerPossibleActions(token: string) {
-        let player = getPlayer(this, token);
+    // public getPlayerPossibleActions(token: string) {
+    //     let player = getPlayer(this, token);
 
-        if (player.cards.length == 0) return [];
-        if (player.cards[0].length == 0) return [];
+    //     if (player.cards.length == 0) return [];
+    //     if (player.cards[0].length == 0) return [];
 
-        let result = [];
+    //     let result = [];
 
-    };
+    // };
 
-    public dealAllCards() {
-        if (getParticipants(this).length == 0) return;
+    // public dealAllCards() {
+    //     if (getParticipants(this).length == 0) return;
 
-        for (let i = 0; i < 2; i++) {
-            for (const player of this.players) {
-                if (player.participates !== true) continue;
+    //     for (let i = 0; i < 2; i++) {
+    //         for (const player of this.players) {
+    //             if (player.participates !== true) continue;
 
-                if (player.cards.length == 0) {
-                    player.cards.push([]);
-                }
+    //             if (player.cards.length == 0) {
+    //                 player.cards.push([]);
+    //             }
 
-                player.cards[0].push(drawCard(this));
-            }
+    //             player.cards[0].push(drawCard(this));
+    //         }
 
-            let dC = drawCard(this);
-            if (i == 1) dC.isBack = true;
-            this.dealerCards.push(dC);
-        }
-    }
+    //         let dC = drawCard(this);
+    //         if (i == 1) dC.isBack = true;
+    //         this.dealerCards.push(dC);
+    //     }
+    // }
 
     public getDealerCards() {
         let cards = [];

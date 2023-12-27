@@ -2,6 +2,7 @@ import seedrandom from "seedrandom";
 import { Card } from "../types/CardType";
 import { GameData } from "./gameData";
 import { randomBytes } from "crypto";
+import { Hand } from "./hand";
 
 
 export function generateDeck(): Card[] {
@@ -41,6 +42,14 @@ export const cardsLeftInShoe = (game: GameData): number => {
 }
 
 export const drawCard = (game: GameData): Card => {
+    if (game == undefined) console.log("UNMDEFINED GAME");
+    if (game != undefined && game.shoe == undefined) {
+        console.log("UNMDEFINED SHOE AND DEFIRED GAME");
+        console.log(game.shoe, game);
+
+    };
+
+
     if (game.shoe.length <= 0) throw new Error("Drawing card from empty shoe");
 
     game.currentRound.cardsLeftAfter--;
@@ -66,3 +75,19 @@ export const generateRandomShoe = (game: GameData, decksUsed: number, seed: stri
 
     game.shoe = shoe;
 }
+
+export const dealToParticipants = (game: GameData) => {
+    if (game.currentRound.participants.length == 0) return;
+
+    for (let i = 0; i < 2; i++) {
+        for (const player of game.currentRound.participants) {
+            if (player.hands.length == 0) player.hands.push(new Hand(player.roundBet));
+
+            player.hands[0].cards.push(drawCard(game));
+        }
+
+        let dC = drawCard(game);
+        if (i == 1) dC.isBack = true;
+        game.dealerCards.push(dC);
+    }
+};

@@ -21,10 +21,10 @@ export const placeBet = (game: GameData, amount: number, token: string): boolean
     return true;
 };
 
-export const setTimeoutForBetting = (game: GameData, callback: () => void, dalay: number, timeoutSetCallback?: () => void) => {
+export const setTimeoutForBetting = (game: GameData, callback: () => void, delay: number, timeoutSetCallback?: () => void) => {
     if (game.betsClosedTimeout) return;
 
-    game.betsClosedTimeout = setTimeout(callback, dalay);
+    game.betsClosedTimeout = setTimeout(callback, delay);
     if (timeoutSetCallback != undefined) {
         timeoutSetCallback();
     }

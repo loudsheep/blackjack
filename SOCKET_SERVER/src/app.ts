@@ -3,11 +3,12 @@ import { Server } from "socket.io";
 import dotenv from "dotenv";
 import path from "path";
 import { IncomingData } from "./types/IncomingDataType";
-import { addPlayerToGame, createGamesObject, getGameByRoomId, getGameData } from "./game/gameDataManager";
+import { createGamesObject, getGameByRoomId, getGameData } from "./game/gameDataManager";
 import { authenticateUser, sendPlayerDataUpdate } from "./lib/auth";
 import { cardsLeftInShoe, generateRandomShoe } from "./game/cards";
 import { placeBet, setTimeoutForBetting } from "./game/bets";
-import { resetStateBeforeNextRound, startRound } from "./game/round";
+import { resetStateBeforeNextRound, respondToPlayerAction, startRound } from "./game/round";
+import { addPlayerToGame } from "./game/players";
 
 dotenv.config({ path: path.resolve(__dirname + "../../../.env") });
 const httpServer = http.createServer();
@@ -111,19 +112,33 @@ io.on('connection', (socket) => {
             return;
         }
 
+        // if bet has been placed then start the countdown for the rest of clients, and then start the actual round
         if (placeBet(game, data.bet, auth.playerData.token)) {
 
             setTimeoutForBetting(game, () => {
-                startRound(game);
                 io.to(game.socketRoomId).emit("betting_ended");
 
-                game.dealAllCards();
-                io.to(game.socketRoomId).emit('game_update', game.gameUpdateData());
+                startRound(game, emitEvent);
+                // manageStartedRound(game, emitEvent);
+
+                // game.dealAllCards();
+                // io.to(game.socketRoomId).emit('game_update', game.gameUpdateData());
             }, 8000, () => io.to(game.socketRoomId).emit('bet_timeout_started', { time: 8000 }));
 
             sendPlayerDataUpdate(game, emitEvent);
             io.to(game.socketRoomId).emit('preround_update', game.gameUpdateData());
         }
+    });
+
+    socket.on('take_action', (data) => {
+        let game = getGameByRoomId(games, data.auth.roomId);
+        let auth = authenticateUser(game, data.auth.token);
+
+        if (!auth.authenticated) {
+            return;
+        }
+
+        respondToPlayerAction(game, data, emitEvent);
     });
 
     // socket.on("disconnect", () => {

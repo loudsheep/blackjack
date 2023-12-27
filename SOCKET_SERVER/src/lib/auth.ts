@@ -25,5 +25,9 @@ export const authenticateUser = (game: GameData, token: string): AuthResultType 
 export const sendPlayerDataUpdate = (game: GameData, socketEmit: (roomId: string, event: string, data: any) => any) => {
     for (const player of game.players) {
         socketEmit(player.token, "player_update", player);
+        if (game.gameStarted && game.currentRound.currentPlayerIndex != undefined && game.currentRound.participants[game.currentRound.currentPlayerIndex].token == player.token) {
+            // TODO 
+            socketEmit(player.token, 'my_turn', { type: "cardAction", actions: ["hit", "stand", "double", "split"], hand: 0, time: 10000 });
+        }
     }
 }
