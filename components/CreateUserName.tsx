@@ -5,9 +5,11 @@ import CommonLayout from './CommonLayout';
 type CreateUserNameProps = {
     token?: string,
     redirectUrl: string,
+    h1?: string,
+    h2?: string,
 };
 
-export default function CreateUserName({ token, redirectUrl }: CreateUserNameProps) {
+export default function CreateUserName({ token, redirectUrl, h1, h2 }: CreateUserNameProps) {
     const handleFormSubmit = async (formData: FormData) => {
         "use server";
 
@@ -33,6 +35,12 @@ export default function CreateUserName({ token, redirectUrl }: CreateUserNamePro
 
     return (
         <CommonLayout>
+            {h1 && (
+                <h1 className='mt-10 text-2xl font-bold'>{h1}</h1>
+            )}
+            {h2 && (
+                <h2 className='mb-10'>{h2}</h2>
+            )}
             <div className='w-[400px] p-6 bg-white border border-gray-200 rounded-lg shadow mt-10'>
                 <form action={handleFormSubmit} className='max-w-sm mx-auto'>
                     <div className="mb-5">

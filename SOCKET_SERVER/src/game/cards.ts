@@ -88,6 +88,6 @@ export const dealToParticipants = (game: GameData) => {
 
         let dC = drawCard(game);
         if (i == 1) dC.isBack = true;
-        game.dealerCards.push(dC);
+        game.dealerCards.cards.push(dC);
     }
 };

@@ -28,13 +28,12 @@ export const addPlayerToGame = (game: GameData, userToken: string, username: str
         username: username,
         tablePosition: game.players.length + 1,
         creator: false,
-        stack: Math.round(game.settings.startingStack * Math.random()),
+        stack: game.settings.startingStack,
         hands: [],
         identifier: randomBytes(10).toString("base64url"),
     };
 
     addPlayer(game, newUser);
-    console.log("New player added to game: ", userToken, username);
 };
 
 export const getPlayer = (game: GameData, token: string): Player => {

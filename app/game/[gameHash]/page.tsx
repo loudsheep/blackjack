@@ -49,9 +49,7 @@ export default async function GamePage({ params }: GamePageProps) {
     if (!user_token) {
         return (
             <>
-                <h1 className='mt-10 text-2xl font-bold'>Enter yout username</h1>
-                <h2 className='mb-10'>Before you join the game</h2>
-                <CreateUserName redirectUrl={`/game/${params.gameHash}`}></CreateUserName>
+                <CreateUserName redirectUrl={`/game/${params.gameHash}`} h1="Create a username" h2="Before you join the game"></CreateUserName>
             </>
         );
     }

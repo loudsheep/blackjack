@@ -31,7 +31,7 @@ export class GameData {
 
     public shoe: Card[] = [];
     public seedsUsed: string[] = [];
-    public dealerCards: Card[] = [];
+    public dealerCards: Hand = new Hand(-1);
 
     public pauseRequested: boolean = false;
 
@@ -88,7 +88,7 @@ export class GameData {
 
     public getDealerCards() {
         let cards = [];
-        for (const card of this.dealerCards) {
+        for (const card of this.dealerCards.cards) {
             if (card.isBack) {
                 cards.push({
                     suit: 'back'

@@ -100,7 +100,7 @@ io.on('connection', (socket) => {
     //     io.to(game.socketRoomId).emit('pause_request');
     // });
 
-    socket.on('place_bet', (data) => {
+    socket.on('place_bet', async (data) => {
         let game = getGameByRoomId(games, data.auth.roomId);
         let auth = authenticateUser(game, data.auth.token);
 
@@ -114,15 +114,10 @@ io.on('connection', (socket) => {
 
         // if bet has been placed then start the countdown for the rest of clients, and then start the actual round
         if (placeBet(game, data.bet, auth.playerData.token)) {
-
             setTimeoutForBetting(game, () => {
                 io.to(game.socketRoomId).emit("betting_ended");
 
                 startRound(game, emitEvent);
-                // manageStartedRound(game, emitEvent);
-
-                // game.dealAllCards();
-                // io.to(game.socketRoomId).emit('game_update', game.gameUpdateData());
             }, 8000, () => io.to(game.socketRoomId).emit('bet_timeout_started', { time: 8000 }));
 
             sendPlayerDataUpdate(game, emitEvent);
@@ -130,7 +125,7 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('take_action', (data) => {
+    socket.on('take_action', async (data) => {
         let game = getGameByRoomId(games, data.auth.roomId);
         let auth = authenticateUser(game, data.auth.token);
 

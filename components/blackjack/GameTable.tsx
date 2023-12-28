@@ -21,6 +21,7 @@ type GameTableProps = {
 export default function GameTable({ players, socket, authData, dealerCards, currentPlayer }: GameTableProps) {
     const [showBettingOptions, setShowBettingOptions] = useState<boolean>(false);
     const [showPlayerActions, setShowPlayerActions] = useState<boolean>(false);
+    const [playerActions, setPlayerActions] = useState<string[]>([]);
     const [betCountdown, setBetCountdown] = useState<number | null>(null);
 
     const placeBet = (value: number) => {
@@ -42,14 +43,24 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
         socket.on('betting_ended', () => {
             setShowBettingOptions(false);
             setBetCountdown(null);
+            console.log("BET END");
         });
 
         socket.on('bet_timeout_started', (data) => {
             setBetCountdown(Date.now() + data.time);
+            console.log("TIMEOUT START");
         });
 
         socket.on('my_turn', (data) => {
             setShowPlayerActions(true);
+            setPlayerActions(data.actions);
+            console.log(data.actions);
+        });
+
+        socket.on('my_turn_finished', (data) => {
+            setShowPlayerActions(false);
+            console.log("TURN FINISHED");
+
         });
 
         return () => {
@@ -57,6 +68,7 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
             socket.off('betting_ended');
             socket.off('bet_timeout_started');
             socket.off('my_turn');
+            socket.off('my_turn_finished');
         };
     }, [socket]);
 
@@ -87,14 +99,29 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
                 <div className="players">
                     {players.map((value: any, idx: any) => (
                         <div key={idx}>
-                            <div className="cards">
+                            <div className="cards mb-8">
                                 {Array.isArray(value.hands) && (
                                     <>
                                         {value.hands.map((hand: any, idx: any) => (
-                                            <div key={idx} className='hand'>
+                                            <div key={idx} className='hand text-center'>
                                                 {hand.cards.map((card: any, idx2: any) => (
                                                     <Card style={{ bottom: (idx2 * 20) + "px", left: (idx2 * 20) + "px" }} suit={card.suit} value={card.value} key={idx2} className={'w-32 absolute z-[' + idx2 + ']'}></Card>
                                                 ))}
+                                                <p className='text-center absolute' style={{ bottom: "-1.5rem" }}>
+                                                    {hand.handValue.filter((v: any) => v <= 21).length > 0 ? (
+                                                        <>{hand.handValue.filter((v: any) => v <= 21).join(" / ")}</>
+                                                    ) : (
+                                                        <>{hand.handValue[0]}</>
+                                                    )}
+                                                </p>
+
+                                                <p className='text-center absolute' style={{ bottom: "-3rem" }}>
+                                                    {hand.isDoubled ? (
+                                                        <>{hand.bet / 2}$ , {hand.bet / 2}$</>
+                                                    ) : (
+                                                        <>{hand.bet}$</>
+                                                    )}
+                                                </p>
                                             </div>
                                         ))}
                                     </>
@@ -103,11 +130,11 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
 
                             <div><p>{value.username}</p></div>
                             {value.stack}
-                            {value.roundBet && (
+                            {/* {value.roundBet && (
                                 <p>
                                     Bet: {value.roundBet}
                                 </p>
-                            )}
+                            )} */}
                             {(value.participates === false) && (
                                 <p className='font-bold text-red-400'>PLAYER DOES NOT PARTICIPATE</p>
                             )}
@@ -119,10 +146,14 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
             {showPlayerActions && (
                 <div className="lover_table">
                     <div className="action_buttons_space">
-                        <button onClick={() => takeAction('double')}>DOUBLE</button>
+                        {playerActions.map((action, idx) => (
+                            <button key={idx} onClick={() => takeAction(action)}>{action.toUpperCase()}</button>
+                        ))}
+
+                        {/* <button onClick={() => takeAction('double')}>DOUBLE</button>
                         <button onClick={() => takeAction('split')}>SPLIT</button>
                         <button onClick={() => takeAction('stand')}>STAND</button>
-                        <button onClick={() => takeAction('hit')}>HIT</button>
+                        <button onClick={() => takeAction('hit')}>HIT</button> */}
                     </div>
                 </div>
             )}
