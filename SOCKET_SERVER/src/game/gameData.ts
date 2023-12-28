@@ -32,6 +32,7 @@ export class GameData {
     public shoe: Card[] = [];
     public seedsUsed: string[] = [];
     public dealerCards: Hand = new Hand(-1);
+    public dealerCardsSum: number = 0;
 
     public pauseRequested: boolean = false;
 
@@ -109,6 +110,7 @@ export class GameData {
             players: getSafePlayersData(this),
             gameStarted: this.gameStarted,
             dealerCards: this.getDealerCards(),
+            dealerCardsSum: this.dealerCardsSum,
             cardsLeft: cardsLeftInShoe(this),
         };
     }

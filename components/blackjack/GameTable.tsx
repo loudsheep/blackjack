@@ -13,12 +13,13 @@ import Countdown from 'react-countdown';
 type GameTableProps = {
     players: any,
     dealerCards: any,
+    dealerCardsSum: number,
     currentPlayer: any,
     socket: Socket,
     authData: SocketAuth,
 };
 
-export default function GameTable({ players, socket, authData, dealerCards, currentPlayer }: GameTableProps) {
+export default function GameTable({ players, socket, authData, dealerCards, currentPlayer, dealerCardsSum }: GameTableProps) {
     const [showBettingOptions, setShowBettingOptions] = useState<boolean>(false);
     const [showPlayerActions, setShowPlayerActions] = useState<boolean>(false);
     const [playerActions, setPlayerActions] = useState<string[]>([]);
@@ -26,7 +27,7 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
 
     const placeBet = (value: number) => {
         socket.emit('place_bet', { auth: authData, bet: value });
-        setShowBettingOptions(false);
+        // setShowBettingOptions(false);
     };
 
     const takeAction = (action: string) => {
@@ -85,7 +86,7 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
                     <div>
                     </div>
                     <div>
-                        <p>Dealer cards</p>
+                        <p>Dealer cards - {dealerCardsSum}</p>
                         <div className="dealer_cards">
                             {dealerCards.map((value: any, idx: any) => (
                                 <Card suit={value.suit} value={value.value} key={idx} className='ml-1 h-full'></Card>

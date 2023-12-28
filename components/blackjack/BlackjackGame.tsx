@@ -26,6 +26,7 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
     const [showWaitingForGameToStart, setShowWaitingForGameToStart] = useState<boolean>(true);
     const [players, setPlayers] = useState<any[]>([]);
     const [dealerCards, setDealerCards] = useState<any[]>([]);
+    const [dealerCardsSum, setDealerCardsSum] = useState<number>(0);
     const [currentPlayer, setCurrentPlayer] = useState<any>({});
     // const [cardLeftInShoe, setCardsLeftInShoe] = useState<number>(0);
 
@@ -40,6 +41,7 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
         setPlayers(data.players);
         setShowWaitingForGameToStart(!data.gameStarted);
         setDealerCards(data.dealerCards);
+        setDealerCardsSum(data.dealerCardsSum);
 
         for (const player of data.players) {
             if (player.token == authData.token) {
@@ -100,7 +102,7 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
     return (
         <>
             {/* teraz w GameTable.tsx jest to co pisałeś */}
-            <GameTable players={players} dealerCards={dealerCards} socket={socket} authData={authData} currentPlayer={currentPlayer}></GameTable>
+            <GameTable players={players} dealerCards={dealerCards} socket={socket} authData={authData} currentPlayer={currentPlayer} dealerCardsSum={dealerCardsSum}></GameTable>
         </>
     );
 }

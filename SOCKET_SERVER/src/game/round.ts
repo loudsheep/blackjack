@@ -18,6 +18,7 @@ export const resetStateBeforeNextRound = (game: GameData) => {
 
     game.dealerCards = new Hand(-1);
     game.betsClosedTimeout = null;
+    game.dealerCardsSum = 0;
 
     game.players.forEach((pl) => {
         pl.hands = [];
@@ -41,7 +42,7 @@ export const sortParticipantsByTablePosition = (game: GameData) => {
 
 export const possiblePlayerHandActions = (game: GameData, player: Player, handIdx: number): string[] => {
     let hand = player.hands[handIdx];
-    
+
     if (hand.handValue()[0] >= 21 || hand.isBlackjackHand()) return [];
 
     if (!hand.playerHasDoubled) {
@@ -71,12 +72,18 @@ export const handleDealerCardDrawingAndNextRound = async (game: GameData, emitEv
     // uncover dealer second card
     for (const card of dealerHand.cards) card.isBack = false;
 
+    let x = higestBelow(dealerHand.handValue(), 21);
+    game.dealerCardsSum = x;
+
     await delay(1000);
     emitEvent(game.socketRoomId, "game_update", game.gameUpdateData());
-    
-    while (higestBelow(dealerHand.handValue(), 21) <= 16) {
+
+    while (x <= 16) {
         await delay(1000);
         dealerHand.cards.push(drawCard(game));
+
+        x = higestBelow(dealerHand.handValue(), 21);
+        game.dealerCardsSum = x;
         emitEvent(game.socketRoomId, "game_update", game.gameUpdateData());
     }
 

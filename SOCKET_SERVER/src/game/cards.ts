@@ -88,6 +88,7 @@ export const dealToParticipants = (game: GameData) => {
 
         let dC = drawCard(game);
         if (i == 1) dC.isBack = true;
+        else game.dealerCardsSum = dC.numValue;
         game.dealerCards.cards.push(dC);
     }
 };
