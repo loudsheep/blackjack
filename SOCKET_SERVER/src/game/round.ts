@@ -87,6 +87,25 @@ export const handleDealerCardDrawingAndNextRound = async (game: GameData, emitEv
         emitEvent(game.socketRoomId, "game_update", game.gameUpdateData());
     }
 
+    for (const player of game.currentRound.participants) {
+        for (const hand of player.hands) {
+            if (hand.winAmount == null) {
+                if (x > 21) {
+                    hand.winAmount = hand.bet;
+                } else if (higestBelow(hand.handValue(), 21) < x) {
+                    hand.winAmount = -hand.bet;
+                } else if (higestBelow(hand.handValue(), 21) == x) {
+                    hand.winAmount = 0;
+                } else {
+                    hand.winAmount = hand.bet;
+                }
+            }
+            player.stack += hand.bet + hand.winAmount;
+        }
+    }
+
+    emitEvent(game.socketRoomId, "game_update", game.gameUpdateData());
+
     await delay(2000);
 
     // TODO Check for chips won/lost
@@ -115,8 +134,10 @@ export const startRound = (game: GameData, emitEvent: EmitEventFunction) => {
     game.currentRound.currentPlayerIndex = 0;
     game.currentRound.currentPlayerHandIndex = 0;
 
+    nextPlayerOrHandTurn(game, "self_call", emitEvent);
+
     emitEvent(game.socketRoomId, "game_update", game.gameUpdateData());
-    sendPlayerDataUpdate(game, emitEvent);
+    // sendPlayerDataUpdate(game, emitEvent);
 };
 
 export const nextPlayerOrHandTurn = (game: GameData, lastAction: any, emitEvent: EmitEventFunction) => {
@@ -124,7 +145,7 @@ export const nextPlayerOrHandTurn = (game: GameData, lastAction: any, emitEvent:
     let currentHand = currentPlayer.hands[game.currentRound.currentPlayerHandIndex];
     let possibleActions = currentHand.possibleActions;
 
-    // function called to check if player/hand has possible actions, idf yes then send data update and wait for next action player takes
+    // function called to check if player/hand has possible actions, if yes then send data update and wait for next action player takes
     if (lastAction == "self_call" && possibleActions.length > 0) {
         sendPlayerDataUpdate(game, emitEvent);
         return;
@@ -158,73 +179,45 @@ export const nextPlayerOrHandTurn = (game: GameData, lastAction: any, emitEvent:
 };
 
 export const respondToPlayerAction = async (game: GameData, data: any, emitEvent: EmitEventFunction) => {
-    if (game.currentRound.currentPlayerIndex == undefined) return;
-
     let currentPlayer = game.currentRound.participants[game.currentRound.currentPlayerIndex];
-    if (currentPlayer.token !== data.auth.token) return;
-
     let possibleActions = possiblePlayerHandActions(game, currentPlayer, game.currentRound.currentPlayerHandIndex ?? 0);
-    if (!possibleActions.includes(data.action)) return;
-
     let currentHand = currentPlayer.hands[game.currentRound.currentPlayerHandIndex];
 
+    // disregard invalid requests
+    if (game.currentRound.currentPlayerIndex == undefined) return;
+    if (currentPlayer.token !== data.auth.token) return;
+    if (!possibleActions.includes(data.action)) return;
+
+    // handle action that user takes
     if (data.action == "hit") {
-
         currentHand.cards.push(drawCard(game));
-
     } else if (data.action == "split") {
-
         currentPlayer.hands.push(currentHand.split());
-        currentHand.cards.push(drawCard(game));
 
+        currentHand.cards.push(drawCard(game));
         currentPlayer.hands[currentPlayer.hands.length - 1].cards.push(drawCard(game));
 
+        // get new possible action for new hands
+        currentHand.possibleActions = possiblePlayerHandActions(game, currentPlayer, game.currentRound.currentPlayerHandIndex);
+        currentPlayer.hands[currentPlayer.hands.length - 1].possibleActions = possiblePlayerHandActions(game, currentPlayer, currentPlayer.hands.length - 1);
     } else if (data.action == "double") {
-
         currentPlayer.stack -= currentHand.bet;
         currentHand.bet *= 2;
         currentHand.playerHasDoubled = true;
 
         currentHand.cards.push(drawCard(game));
-
     }
 
+    if (currentHand.isBlackjackHand()) {
+        currentHand.winAmount = currentHand.bet * (3 / 2);
+    } else if (currentHand.handValue()[0] > 21) {
+        currentHand.winAmount = -currentHand.bet;
+    }
+
+    // emit new game state and recalculate player actions
     emitEvent(game.socketRoomId, "game_update", game.gameUpdateData());
     currentHand.possibleActions = possiblePlayerHandActions(game, currentPlayer, game.currentRound.currentPlayerHandIndex);
 
-    // if (data.action != "stand" && possiblePlayerHandActions(game, currentPlayer, game.currentRound.currentPlayerHandIndex).length > 0) {
-    //     // console.log("SAME HAND", game.currentRound.currentPlayerHandIndex);
-
-    //     sendPlayerDataUpdate(game, emitEvent);
-    //     return;
-    // }
-
-    // if (game.currentRound.currentPlayerHandIndex < currentPlayer.hands.length - 1) {
-    //     // console.log("NEXT HAND", game.currentRound.currentPlayerHandIndex + 1);
-    //     game.currentRound.currentPlayerHandIndex++;
-
-    //     if (possiblePlayerHandActions(game, currentPlayer, game.currentRound.currentPlayerHandIndex).length > 0) {
-    //         sendPlayerDataUpdate(game, emitEvent);
-    //         return;
-    //     }
-    // }
-
-    // if (game.currentRound.currentPlayerIndex < game.currentRound.participants.length - 1) {
-    //     // console.log("NEXT PLAYER", game.currentRound.currentPlayerIndex + 1);
-
-    //     game.currentRound.currentPlayerIndex++;
-    //     game.currentRound.currentPlayerHandIndex = 0;
-
-    //     if (possiblePlayerHandActions(game, currentPlayer, game.currentRound.currentPlayerHandIndex).length > 0) {
-    //         sendPlayerDataUpdate(game, emitEvent);
-    //         return;
-    //     }
-    // }
-
+    // 
     nextPlayerOrHandTurn(game, data.action, emitEvent);
-
-    // console.log("NEXT ROUND");
-
-    // all players have taken action, deal cards to dealer and then prepare next round
-    // handleDealerCardDrawingAndNextRound(game, emitEvent);
 };

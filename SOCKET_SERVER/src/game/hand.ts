@@ -5,6 +5,7 @@ import { possiblePlayerHandActions } from "./round";
 export class Hand {
     public cards: Card[] = [];
     public bet: number;
+    public winAmount: number | null = null;
     public playerHasDoubled: boolean = false;
     public possibleActions: string[] = [];
 
@@ -62,6 +63,7 @@ export class Hand {
         return {
             cards: this.cards,
             bet: this.bet,
+            winAmount: this.winAmount,
             isDoubled: this.playerHasDoubled,
             handValue: this.handValue(),
         }
@@ -71,7 +73,7 @@ export class Hand {
 export const calculateActionsForHands = (game: GameData) => {
     for (const player of game.currentRound.participants) {
         for (let h = 0; h < player.hands.length; h++) {
-            player.hands[h].possibleActions = possiblePlayerHandActions(game, player, h)    
+            player.hands[h].possibleActions = possiblePlayerHandActions(game, player, h)
         }
     }
 };

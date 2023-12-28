@@ -27,7 +27,7 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
 
     const placeBet = (value: number) => {
         socket.emit('place_bet', { auth: authData, bet: value });
-        // setShowBettingOptions(false);
+        setShowBettingOptions(false);
     };
 
     const takeAction = (action: string) => {
@@ -117,11 +117,23 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
                                                 </p>
 
                                                 <p className='text-center absolute' style={{ bottom: "-3rem" }}>
-                                                    {hand.isDoubled ? (
-                                                        <>{hand.bet / 2}$ , {hand.bet / 2}$</>
-                                                    ) : (
-                                                        <>{hand.bet}$</>
-                                                    )}
+                                                    <>
+                                                        {hand.isDoubled ? (
+                                                            <>{hand.bet / 2}$ , {hand.bet / 2}$</>
+                                                        ) : (
+                                                            <>{hand.bet}$</>
+                                                        )}
+
+                                                        {hand.winAmount && (
+                                                            <>
+                                                                {hand.winAmount > 0 ? (
+                                                                    <span className='text-green-500'>+{hand.winAmount}$</span>
+                                                                ) : (
+                                                                    <span className='text-red-500'>{hand.winAmount}$</span>
+                                                                )}
+                                                            </>
+                                                        )}
+                                                    </>
                                                 </p>
                                             </div>
                                         ))}
@@ -130,12 +142,7 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
                             </div>
 
                             <div><p>{value.username}</p></div>
-                            {value.stack}
-                            {/* {value.roundBet && (
-                                <p>
-                                    Bet: {value.roundBet}
-                                </p>
-                            )} */}
+                            S: {value.stack}
                             {(value.participates === false) && (
                                 <p className='font-bold text-red-400'>PLAYER DOES NOT PARTICIPATE</p>
                             )}
