@@ -73,7 +73,10 @@ export class Hand {
 export const calculateActionsForHands = (game: GameData) => {
     for (const player of game.currentRound.participants) {
         for (let h = 0; h < player.hands.length; h++) {
-            player.hands[h].possibleActions = possiblePlayerHandActions(game, player, h)
+            let hand = player.hands[h];
+            hand.possibleActions = possiblePlayerHandActions(game, player, h);
+
+            if (hand.isBlackjackHand()) hand.winAmount = hand.bet * (3 / 2);
         }
     }
 };

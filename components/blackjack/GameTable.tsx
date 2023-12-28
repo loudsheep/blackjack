@@ -127,9 +127,9 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
                                                         {hand.winAmount && (
                                                             <>
                                                                 {hand.winAmount > 0 ? (
-                                                                    <span className='text-green-500'>+{hand.winAmount}$</span>
+                                                                    <span className='text-green-500'> +{hand.winAmount}$</span>
                                                                 ) : (
-                                                                    <span className='text-red-500'>{hand.winAmount}$</span>
+                                                                    <span className='text-red-500'> {hand.winAmount}$</span>
                                                                 )}
                                                             </>
                                                         )}

@@ -56,12 +56,27 @@ export const possiblePlayerHandActions = (game: GameData, player: Player, handId
     return [];
 };
 
-const higestBelow = (array: number[], max: number): number => {
-    let below = array.filter(x => x <= max);
+const min = (array: number[]): number => {
+    let min = array[0];
+    for (const i of array) {
+        if (i < min) min = i;
+    }
+    return min;
+};
 
-    if (below.length > 0) return below[below.length - 1];
+const max = (array: number[]): number => {
+    let max = array[0];
+    for (const i of array) {
+        if (i > max) max = i;
+    }
+    return max;
+};
 
-    return array[0];
+const higestBelow = (array: number[], maxValue: number): number => {
+    array = array.sort();
+    let below = array.filter(x => x <= maxValue);
+    if (below.length > 0) return max(below);
+    return min(array);
 };
 
 export const handleDealerCardDrawingAndNextRound = async (game: GameData, emitEvent: EmitEventFunction) => {
@@ -137,7 +152,6 @@ export const startRound = (game: GameData, emitEvent: EmitEventFunction) => {
     nextPlayerOrHandTurn(game, "self_call", emitEvent);
 
     emitEvent(game.socketRoomId, "game_update", game.gameUpdateData());
-    // sendPlayerDataUpdate(game, emitEvent);
 };
 
 export const nextPlayerOrHandTurn = (game: GameData, lastAction: any, emitEvent: EmitEventFunction) => {
