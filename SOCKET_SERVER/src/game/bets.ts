@@ -25,7 +25,18 @@ export const setTimeoutForBetting = (game: GameData, callback: () => void, delay
     if (game.betsClosedTimeout) return;
 
     game.betsClosedTimeout = setTimeout(callback, delay);
+    game.betsClosedTimeoutStartTime = Date.now();
     if (timeoutSetCallback != undefined) {
         timeoutSetCallback();
     }
+};
+
+export const timeLeftForBetting = (game: GameData) => {
+    if (game.betsClosedTimeout) {
+        let x = Date.now() - game.betsClosedTimeoutStartTime;
+        x = game.betsClosedTimeout._idleTimeout - x;
+        
+        return x;
+    }
+    return null;
 };

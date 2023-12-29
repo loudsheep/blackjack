@@ -74,6 +74,7 @@ export const getSafePlayersData = (game: GameData) => {
             hands: handsToObjects(pl),
             roundBet: pl.roundBet,
             participates: pl.participates,
+            creator: pl.creator,
         });
     }
     return result;

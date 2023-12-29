@@ -135,8 +135,14 @@ export const handleDealerCardDrawingAndNextRound = async (game: GameData, emitEv
         return;
     }
 
+
     sendPlayerDataUpdate(game, emitEvent);
-    setTimeout(() => emitEvent(game.socketRoomId, "hand_starting", game.gameUpdateData()), 2_000);
+    setTimeout(() => {
+        emitEvent(game.socketRoomId, "hand_starting", game.gameUpdateData());
+        
+        game.bettingTime = true;
+        sendPlayerDataUpdate(game, emitEvent);
+    }, 2_000);
 };
 
 export const startRound = (game: GameData, emitEvent: EmitEventFunction) => {

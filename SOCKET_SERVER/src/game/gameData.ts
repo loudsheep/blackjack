@@ -35,9 +35,11 @@ export class GameData {
     public dealerCardsSum: number = 0;
 
     public pauseRequested: boolean = false;
+    public bettingTime: boolean = false;
 
     // timeouts
     public betsClosedTimeout: any = null;
+    public betsClosedTimeoutStartTime: number | null = null;
     public playerActionTimeout: any = null;
 
     constructor(

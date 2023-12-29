@@ -52,6 +52,7 @@ export default function BeforeGameStarts({ players, gameHash, currentUserIsCreat
                         {value.creator && (
                             <p className='ml-1 text-green-800'>
                                 (game creator)
+                                TODO: kick/ban buttons for game creator
                             </p>
                         )}
                     </div>

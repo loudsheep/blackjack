@@ -48,7 +48,7 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
         socket.on('hand_starting', (data) => {
             console.log(data, "STARTING");
 
-            setShowBettingOptions(true);
+            // setShowBettingOptions(true);
         });
 
         socket.on('betting_ended', () => {
@@ -63,13 +63,24 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
         });
 
         socket.on('my_turn', (data) => {
-            setShowPlayerActions(true);
-            setPlayerActions(data.actions);
-            console.log(data.actions);
+            // setShowPlayerActions(true);
+            // setPlayerActions(data.actions);
+            console.log("MY TURN", data);
+
+            if (data.type == "bet") {
+                if (data.time) setBetCountdown(Date.now() + data.time);
+                setShowBettingOptions(true);
+            } else if (data.type == "cardAction") {
+                setShowPlayerActions(true);
+                setPlayerActions(data.actions);
+            }
         });
 
         socket.on('my_turn_finished', (data) => {
             setShowPlayerActions(false);
+            setShowBettingOptions(false);
+            setBetCountdown(null);
+            
             console.log("TURN FINISHED");
         });
 

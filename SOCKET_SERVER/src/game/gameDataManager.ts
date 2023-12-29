@@ -16,6 +16,12 @@ export const getGameData = async (games: GameData[], gameHash: string): Promise<
 
     await connectMongoDB();
 
+    // TODO: change for production
+    await Game.updateOne({ hash: gameHash }, {
+        gameStarted: false,
+        $pull: { players: { creator: false } }
+    }).exec();
+
     let game = await Game.findOne({ hash: gameHash }).exec();
     if (!game || !game.active) {
         return false;

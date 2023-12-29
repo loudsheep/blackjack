@@ -81,9 +81,12 @@ io.on('connection', (socket) => {
 
         resetStateBeforeNextRound(game);
 
-        sendPlayerDataUpdate(game, emitEvent);
+        setTimeout(() => {
+            io.to(game.socketRoomId).emit("hand_starting", game.gameUpdateData())
+            game.bettingTime = true;
 
-        setTimeout(() => io.to(game.socketRoomId).emit("hand_starting", game.gameUpdateData()), 2_000);
+            sendPlayerDataUpdate(game, emitEvent);
+        }, 2_000);
     });
 
     socket.on('pause_game', async (data) => {
@@ -116,9 +119,14 @@ io.on('connection', (socket) => {
         // if first bet has been placed then start the countdown for the rest of clients, and then start the actual round
         if (placeBet(game, data.bet, auth.playerData.token)) {
             setTimeoutForBetting(game, () => {
+                game.betsClosedTimeout = null;
+                game.bettingTime = false;
+                
+                sendPlayerDataUpdate(game, emitEvent);
+                
                 io.to(game.socketRoomId).emit("betting_ended");
                 startRound(game, emitEvent);
-                game.betsClosedTimeout = null;
+                
             }, 8000, () => io.to(game.socketRoomId).emit('bet_timeout_started', { time: 8000 }));
 
             sendPlayerDataUpdate(game, emitEvent);
