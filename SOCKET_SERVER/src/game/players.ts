@@ -2,6 +2,7 @@ import { randomBytes } from "crypto";
 import { Card } from "../types/CardType";
 import { GameData } from "./gameData";
 import { Hand } from "./hand";
+import { addPlayerToGameInDB } from "./gameDataManager";
 
 export type Player = {
     token: string,
@@ -18,7 +19,7 @@ export type Player = {
     isThisPlayersTurn?: boolean,
 };
 
-export const addPlayerToGame = (game: GameData, userToken: string, username: string) => {
+export const addPlayerToGame = async (game: GameData, userToken: string, username: string) => {
     if (game.players.find(elem => elem.token == userToken)) {
         return;
     }
@@ -34,6 +35,7 @@ export const addPlayerToGame = (game: GameData, userToken: string, username: str
     };
 
     addPlayer(game, newUser);
+    await addPlayerToGameInDB(game, newUser);
 };
 
 export const getPlayer = (game: GameData, token: string): Player => {

@@ -2,6 +2,7 @@ import { sendPlayerDataUpdate } from "../lib/auth";
 import { delay } from "../util/util";
 import { cardsLeftInShoe, dealToParticipants, drawCard } from "./cards";
 import { GameData } from "./gameData";
+import { updateGameStartedInDB } from "./gameDataManager";
 import { Hand, calculateActionsForHands } from "./hand";
 import { Player, getParticipants } from "./players";
 
@@ -102,6 +103,7 @@ export const handleDealerCardDrawingAndNextRound = async (game: GameData, emitEv
         emitEvent(game.socketRoomId, "game_update", game.gameUpdateData());
     }
 
+    // TODO Check for chips won/lost
     for (const player of game.currentRound.participants) {
         for (const hand of player.hands) {
             if (hand.winAmount == null) {
@@ -120,14 +122,20 @@ export const handleDealerCardDrawingAndNextRound = async (game: GameData, emitEv
     }
 
     emitEvent(game.socketRoomId, "game_update", game.gameUpdateData());
-
     await delay(2000);
 
-    // TODO Check for chips won/lost
-
     resetStateBeforeNextRound(game);
-    sendPlayerDataUpdate(game, emitEvent);
 
+    if (game.pauseRequested) {
+        game.gameStarted = false;
+        game.pauseRequested = false;
+
+        emitEvent(game.socketRoomId, "game_paused", {});
+        await updateGameStartedInDB(game);
+        return;
+    }
+
+    sendPlayerDataUpdate(game, emitEvent);
     setTimeout(() => emitEvent(game.socketRoomId, "hand_starting", game.gameUpdateData()), 2_000);
 };
 

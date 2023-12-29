@@ -3,7 +3,7 @@ import { Server } from "socket.io";
 import dotenv from "dotenv";
 import path from "path";
 import { IncomingData } from "./types/IncomingDataType";
-import { createGamesObject, getGameByRoomId, getGameData } from "./game/gameDataManager";
+import { createGamesObject, getGameByRoomId, getGameData, updateGameStartedInDB } from "./game/gameDataManager";
 import { authenticateUser, sendPlayerDataUpdate } from "./lib/auth";
 import { cardsLeftInShoe, generateRandomShoe } from "./game/cards";
 import { placeBet, setTimeoutForBetting } from "./game/bets";
@@ -48,7 +48,7 @@ io.on('connection', (socket) => {
             return;
         }
 
-        addPlayerToGame(game, data.token, data.username);
+        await addPlayerToGame(game, data.token, data.username);
 
         // join 2 rooms. First is general room for every player, and second is secifically for this user to send their updates
         await socket.join([data.roomId, data.token]);
@@ -74,7 +74,7 @@ io.on('connection', (socket) => {
         }
 
         game.gameStarted = true;
-        // await updateGameStartedInDB(game);
+        await updateGameStartedInDB(game);
 
         // emit game started event for all players
         io.to(game.socketRoomId).emit("game_started", game.gameUpdateData());
@@ -86,19 +86,20 @@ io.on('connection', (socket) => {
         setTimeout(() => io.to(game.socketRoomId).emit("hand_starting", game.gameUpdateData()), 2_000);
     });
 
-    // socket.on('pause_game', async (data) => {
-    //     let game = getGameByRoomId(games, data.roomId);
-    //     let auth = authenticateUser(game, data.token);
+    socket.on('pause_game', async (data) => {
+        let game = getGameByRoomId(games, data.auth.roomId);
+        let auth = authenticateUser(game, data.auth.token);
 
-    //     if (!auth.authenticated || !auth.isCreator) {
-    //         return;
-    //     }
+        console.log("PAUSE GAME");
 
-    //     game.pauseRequested = true;
-    //     // await updateGameStartedInDB(game);
+        if (!auth.authenticated || !auth.isCreator) {
+            return;
+        }
 
-    //     io.to(game.socketRoomId).emit('pause_request');
-    // });
+        game.pauseRequested = true;
+
+        io.to(game.socketRoomId).emit('pause_request');
+    });
 
     socket.on('place_bet', async (data) => {
         let game = getGameByRoomId(games, data.auth.roomId);
@@ -112,12 +113,12 @@ io.on('connection', (socket) => {
             return;
         }
 
-        // if bet has been placed then start the countdown for the rest of clients, and then start the actual round
+        // if first bet has been placed then start the countdown for the rest of clients, and then start the actual round
         if (placeBet(game, data.bet, auth.playerData.token)) {
             setTimeoutForBetting(game, () => {
                 io.to(game.socketRoomId).emit("betting_ended");
-
                 startRound(game, emitEvent);
+                game.betsClosedTimeout = null;
             }, 8000, () => io.to(game.socketRoomId).emit('bet_timeout_started', { time: 8000 }));
 
             sendPlayerDataUpdate(game, emitEvent);

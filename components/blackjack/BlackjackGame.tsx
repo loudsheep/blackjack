@@ -11,7 +11,12 @@ type BlackjacjGameProps = {
     gameHash: string,
     username: string,
     roomId: string,
-    currentUserIsCreator: boolean
+    currentUserIsCreator: boolean,
+    settings: {
+        minBet: number,
+        maxBet: number,
+        startingStack: number,
+    },
 };
 
 type NewUserType = {
@@ -68,6 +73,10 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
             updateGameState(data);
         });
 
+        socket.on('game_paused', (data: any) => {
+            setShowWaitingForGameToStart(true);
+        });
+
         socket.on('preround_update', (data) => {
             console.log("PRE-UPDATE", data);
             updateGameState(data);
@@ -85,6 +94,7 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
         return () => {
             socket.off('new_user');
             socket.off('game_started');
+            socket.off('game_paused');
             socket.off('preround_update');
             socket.off('game_update');
             socket.off('player_update');
@@ -102,7 +112,7 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
     return (
         <>
             {/* teraz w GameTable.tsx jest to co pisałeś */}
-            <GameTable players={players} dealerCards={dealerCards} socket={socket} authData={authData} currentPlayer={currentPlayer} dealerCardsSum={dealerCardsSum}></GameTable>
+            <GameTable players={players} dealerCards={dealerCards} socket={socket} authData={authData} currentPlayer={currentPlayer} dealerCardsSum={dealerCardsSum} settings={props.settings}></GameTable>
         </>
     );
 }

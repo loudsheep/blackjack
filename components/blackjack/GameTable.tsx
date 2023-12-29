@@ -17,16 +17,26 @@ type GameTableProps = {
     currentPlayer: any,
     socket: Socket,
     authData: SocketAuth,
+    settings: {
+        minBet: number,
+        maxBet: number,
+        startingStack: number,
+    },
 };
 
-export default function GameTable({ players, socket, authData, dealerCards, currentPlayer, dealerCardsSum }: GameTableProps) {
+// TODO change this { players, socket, authData, ... } to just props: GameTableProps
+export default function GameTable({ players, socket, authData, dealerCards, currentPlayer, dealerCardsSum, settings }: GameTableProps) {
     const [showBettingOptions, setShowBettingOptions] = useState<boolean>(false);
     const [showPlayerActions, setShowPlayerActions] = useState<boolean>(false);
     const [playerActions, setPlayerActions] = useState<string[]>([]);
     const [betCountdown, setBetCountdown] = useState<number | null>(null);
+    const [lastBet, setLastBet] = useState<number>(0);
+
+    const [pauseRequested, setPauseRequested] = useState<boolean>(false);
 
     const placeBet = (value: number) => {
         socket.emit('place_bet', { auth: authData, bet: value });
+        setLastBet(value);
         setShowBettingOptions(false);
     };
 
@@ -61,7 +71,10 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
         socket.on('my_turn_finished', (data) => {
             setShowPlayerActions(false);
             console.log("TURN FINISHED");
+        });
 
+        socket.on('pause_request', (data) => {
+            setPauseRequested(true);
         });
 
         return () => {
@@ -70,6 +83,7 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
             socket.off('bet_timeout_started');
             socket.off('my_turn');
             socket.off('my_turn_finished');
+            socket.off('pause_requested');
         };
     }, [socket]);
 
@@ -80,6 +94,13 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
                 <div>Shop</div>
                 <div>Rules</div>
                 <div>Profile</div>
+                {pauseRequested && (
+                    <h1 className='font-bold text-red-500'>THE GAME WILL PAUSE BEFORE THE NEXT ROUND</h1>
+                )}
+
+                {(currentPlayer.creator && !pauseRequested) && (
+                    <button className="relative bg-gradient-to-b from-red-700 to-red-800 hover:from-red-800 hover:to-red-900 text-white font-bold ml-5 py-0.5 px-2 rounded-md shadow-md transition-all duration-300" style={{ border: '2px solid #440000' }} onClick={() => socket.emit('pause_game', { auth: authData })}>Pause game</button>
+                )}
             </div>
             <div className="table">
                 <div className="dealer">
@@ -167,11 +188,11 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
             )}
 
             {showBettingOptions && (
-                <BetForm minValue={0} maxValue={currentPlayer.stack} startValue={0} step={10} callback={placeBet} confirmButtonText='Place bet' className='w-1/2'></BetForm>
+                <BetForm minValue={settings.minBet} maxValue={Math.min(currentPlayer.stack, settings.maxBet)} startValue={lastBet} step={10} callback={placeBet} confirmButtonText='Place bet' className='w-1/2'></BetForm>
             )}
 
             {betCountdown !== null && (
-                <Countdown date={betCountdown} precision={100} key={betCountdown}></Countdown>
+                <Countdown date={betCountdown} precision={100} key={betCountdown} className='text-white'></Countdown>
             )}
         </div>
     )

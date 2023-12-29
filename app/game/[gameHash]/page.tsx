@@ -13,19 +13,26 @@ type GamePageProps = {
 };
 
 const checkIfGameExists = async (hash: string) => {
-    let games = await Game.findOne({ hash: hash, active: true }).exec();
+    let game = await Game.findOne({ hash: hash, active: true }).exec();
 
-    return games;
+    return game;
+};
+
+const checkIfUserIsPartOfTheGame = async (game: any, token: string) => {
+    let gameData = await Game.findOne({ "hash": game.hash, "active": true, "players.token": token }).exec();
+
+    if (!gameData) return false;
+    return true;
 };
 
 const getGameSocketRoomId = async (hash: string) => {
-    let games = await Game.findOne({ hash: hash, active: true, gameStarted: false }).exec();
+    let game = await Game.findOne({ hash: hash, active: true }).exec();
 
-    if (!games) {
+    if (!game) {
         return -1;
     }
 
-    return games.socketRoomId;
+    return game.socketRoomId;
 }
 
 const getUserameFromToken = async (token: string) => {
@@ -41,6 +48,7 @@ export default async function GamePage({ params }: GamePageProps) {
 
     await connectMongoDB();
 
+    // TODO check if game started and if user is the participant of the game, only if not throw 404
     let game = await checkIfGameExists(params.gameHash)
     if (!game) {
         return notFound();
@@ -48,25 +56,23 @@ export default async function GamePage({ params }: GamePageProps) {
 
     if (!user_token) {
         return (
-            <>
-                <CreateUserName redirectUrl={`/game/${params.gameHash}`} h1="Create a username" h2="Before you join the game"></CreateUserName>
-            </>
+            <CreateUserName redirectUrl={`/game/${params.gameHash}`} h1="Create a username" h2="Before you join the game"></CreateUserName>
         );
     }
 
     let username = await getUserameFromToken(user_token.value);
     if (!username) {
         return (
-            <>
-                <h1 className='mt-10 text-2xl font-bold'>Enter yout username</h1>
-                <h2 className='mb-10'>Before you join the game</h2>
-                <CreateUserName redirectUrl={`/game/${params.gameHash}`}></CreateUserName>
-            </>
+            <CreateUserName redirectUrl={`/game/${params.gameHash}`} h1="Enter yout username" h2="Before you join the game"></CreateUserName>
         );
     }
 
     let roomId = await getGameSocketRoomId(params.gameHash);
     if (roomId === -1) return notFound();
+
+    if (game.gameStarted) {
+        if (!(await checkIfUserIsPartOfTheGame(game, user_token.value))) return notFound();
+    }
 
     let isCreator = false;
     for (const iterator of game.players) {
@@ -78,6 +84,6 @@ export default async function GamePage({ params }: GamePageProps) {
     // TODO join game via route /game/join
 
     return (
-        <BlackjackGame token={user_token.value} gameHash={params.gameHash} username={username} roomId={roomId} currentUserIsCreator={isCreator}></BlackjackGame>
+        <BlackjackGame token={user_token.value} gameHash={params.gameHash} username={username} roomId={roomId} currentUserIsCreator={isCreator} settings={game.settings}></BlackjackGame>
     );
 }

@@ -2,7 +2,7 @@ import { randomBytes } from "crypto";
 import Game from "../models/game";
 import connectMongoDB from "../lib/mongodb";
 import { GameData } from "./gameData";
-import { addPlayer } from "./players";
+import { Player, addPlayer } from "./players";
 
 export const createGamesObject = () => {
     let games: GameData[] = [];
@@ -53,6 +53,24 @@ export const updateGameStartedInDB = async (game: GameData) => {
     await connectMongoDB();
 
     await Game.updateOne({ hash: game.hash }, { gameStarted: game.gameStarted }).exec();
+}
+
+export const addPlayerToGameInDB = async (game: GameData, player: Player) => {
+    await connectMongoDB();
+
+    await Game.updateOne(
+        { hash: game.hash },
+        {
+            $push: {
+                players: {
+                    token: player.token,
+                    username: player.username,
+                    creator: player.creator,
+                    tablePosition: player.tablePosition,
+                }
+            }
+        })
+        .exec();
 }
 
 export const handStartingData = (game: GameData) => {
