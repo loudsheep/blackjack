@@ -32,36 +32,19 @@ export const sendPlayerDataUpdate = (game: GameData, socketEmit: (roomId: string
 
         if (!game.gameStarted) continue;
         if (!game.currentRound) continue;
-        // if (game.currentRound.participants[game.currentRound.currentPlayerIndex]?.token != player.token) continue;
 
-        if (game.bettingTime && player.roundBet == undefined) {
-            // if (game.betsClosedTimeout != null) {
-                socketEmit(player.token, 'my_turn', { type: "bet", time: timeLeftForBetting(game) });
-            // } else {
-                // socketEmit(player.token, 'my_turn', { type: "bet", time: null });
-            // }
+        if (game.bettingTime) {
+            if (player.roundBet) socketEmit(player.token, 'my_turn', { type: "bet_timeout", time: timeLeftForBetting(game) });
+            else socketEmit(player.token, 'my_turn', { type: "bet", time: timeLeftForBetting(game) });
+
+            // socketEmit(player.token, 'my_turn', { type: "bet", time: timeLeftForBetting(game) });
             continue;
         }
-        
+
         if (game.currentRound.currentPlayerIndex == undefined) continue;
 
         if (game.currentRound.participants[game.currentRound.currentPlayerIndex]?.token == player.token) {
             socketEmit(player.token, 'my_turn', { type: "cardAction", actions: possiblePlayerHandActions(game, player, game.currentRound.currentPlayerHandIndex), hand: game.currentRound.cardsLeftAfter, time: 10000 });
-        } 
-        // else {
-        //     socketEmit(player.token, 'my_turn_finished', {});
-        // }
-
-        // if (game.betsClosedTimeout != null) {
-        // }
-
-        // // let user know what it is supposed to do now
-        // if (game.gameStarted && game.currentRound.currentPlayerIndex != undefined
-        //     && game.currentRound.participants[game.currentRound.currentPlayerIndex]?.token == player.token) {
-        //     // TODO 
-        //     socketEmit(player.token, 'my_turn', { type: "cardAction", actions: possiblePlayerHandActions(game, player, game.currentRound.currentPlayerHandIndex), hand: game.currentRound.cardsLeftAfter, time: 10000 });
-        // } else {
-        //     socketEmit(player.token, 'my_turn_finished', {});
-        // }
+        }
     }
 }

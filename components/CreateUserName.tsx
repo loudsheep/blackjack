@@ -1,6 +1,10 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import CommonLayout from './CommonLayout';
+import connectMongoDB from '@/lib/mongodb';
+import { randomBytes } from 'crypto';
+import User from "@/models/user";
+import { NextResponse } from 'next/server';
 
 type CreateUserNameProps = {
     token?: string,
@@ -17,19 +21,25 @@ export default function CreateUserName({ token, redirectUrl, h1, h2 }: CreateUse
             username: formData.get('username'),
         }
 
-        let res = await fetch(process.env.BASE_PATH + '/api/game/register', {
-            method: "POST",
-            body: JSON.stringify({
+        await connectMongoDB();
+        let Token = token;
+
+        try {
+            if (!token) {
+                Token = randomBytes(100).toString('base64url');
+            }
+
+            await User.create({
+                token: Token,
                 username: rawFormData.username,
-                token,
-            }),
-        });
+            });
 
-        if (res.status == 201) {
-            let json = JSON.parse(await res.json());
-            cookies().set('user_token', json.token, { expires: Date.now() + 1000 * 60 * 60 * 24 * 365 });
-
-            redirect(redirectUrl);
+            if (Token != undefined) {
+                cookies().set('user_token', Token, { expires: Date.now() + 1000 * 60 * 60 * 24 * 365 });
+                redirect(redirectUrl);
+            }
+        } catch (err: any) {
+            console.log(err);
         }
     };
 

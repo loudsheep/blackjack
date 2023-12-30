@@ -93,8 +93,6 @@ io.on('connection', (socket) => {
         let game = getGameByRoomId(games, data.auth.roomId);
         let auth = authenticateUser(game, data.auth.token);
 
-        console.log("PAUSE GAME");
-
         if (!auth.authenticated || !auth.isCreator) {
             return;
         }
