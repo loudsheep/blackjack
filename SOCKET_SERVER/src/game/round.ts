@@ -1,6 +1,6 @@
 import { sendPlayerDataUpdate } from "../lib/auth";
 import { delay } from "../util/util";
-import { cardsLeftInShoe, dealToParticipants, drawCard } from "./cards";
+import { cardsLeftInShoe, dealToParticipants, drawCard, generateRandomShoe } from "./cards";
 import { GameData } from "./gameData";
 import { updateGameStartedInDB } from "./gameDataManager";
 import { Hand, calculateActionsForHands } from "./hand";
@@ -125,6 +125,10 @@ export const handleDealerCardDrawingAndNextRound = async (game: GameData, emitEv
     emitEvent(game.socketRoomId, "game_update", game.gameUpdateData());
     await delay(2000);
 
+    if (game.shoe.length < 50) {
+        generateRandomShoe(game, 6);
+    }
+
     resetStateBeforeNextRound(game);
 
     if (game.pauseRequested) {
@@ -135,7 +139,6 @@ export const handleDealerCardDrawingAndNextRound = async (game: GameData, emitEv
         await updateGameStartedInDB(game);
         return;
     }
-
 
     sendPlayerDataUpdate(game, emitEvent);
     setTimeout(() => {
@@ -197,6 +200,7 @@ export const nextPlayerOrHandTurn = (game: GameData, lastAction: any, emitEvent:
     // there is another player after current one, switch to him and check
     if (game.currentRound.currentPlayerIndex < game.currentRound.participants.length - 1) {
         game.currentRound.currentPlayerIndex++;
+        game.currentRound.currentPlayerHandIndex = 0;
 
         nextPlayerOrHandTurn(game, "self_call", emitEvent);
         return;

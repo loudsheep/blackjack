@@ -73,25 +73,7 @@ export const generateRandomShoe = (game: GameData, decksUsed: number, seed: stri
         [shoe[i], shoe[j]] = [shoe[j], shoe[i]];
     }
 
-    // TODO: delete this
-    // FOR TESTING:
-    shoe[0] = {
-        suit: "clubs",
-        value: "ace",
-        numValue: 11,
-    };
-    shoe[3] = {
-        suit: "hearts",
-        value: "10",
-        numValue: 10,
-    };
-    shoe[2] = {
-        suit: "hearts",
-        value: "ace",
-        numValue: 11,
-    };
-
-    game.shoe = shoe;
+    game.shoe.push(...shoe);
 }
 
 export const dealToParticipants = (game: GameData) => {

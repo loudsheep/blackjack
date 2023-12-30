@@ -22,10 +22,11 @@ type GameTableProps = {
         maxBet: number,
         startingStack: number,
     },
+    cardsInShoe: number,
 };
 
 // TODO change this { players, socket, authData, ... } to just props: GameTableProps
-export default function GameTable({ players, socket, authData, dealerCards, currentPlayer, dealerCardsSum, settings }: GameTableProps) {
+export default function GameTable({ players, socket, authData, dealerCards, currentPlayer, dealerCardsSum, settings, cardsInShoe }: GameTableProps) {
     const [showBettingOptions, setShowBettingOptions] = useState<boolean>(false);
     const [showPlayerActions, setShowPlayerActions] = useState<boolean>(false);
     const [playerActions, setPlayerActions] = useState<string[]>([]);
@@ -127,6 +128,7 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
                     </div>
                     <div className="deck">
                         <img src={logo.src} alt="aha" />
+                        {cardsInShoe} cards left
                     </div>
                 </div>
                 <div className="players">

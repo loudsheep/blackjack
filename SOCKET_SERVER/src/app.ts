@@ -135,8 +135,18 @@ io.on('connection', (socket) => {
 
             }, 8000, () => io.to(game.socketRoomId).emit('bet_timeout_started', { time: 8000 }));
 
-            sendPlayerDataUpdate(game, emitEvent);
             io.to(game.socketRoomId).emit('preround_update', game.gameUpdateData());
+
+            if (game.currentRound.participants.length == game.players.length) {
+                clearTimeout(game.betsClosedTimeout);
+                game.betsClosedTimeout = null;
+                game.bettingTime = false;
+
+                io.to(game.socketRoomId).emit("betting_ended");
+                startRound(game, emitEvent);
+            }
+
+            sendPlayerDataUpdate(game, emitEvent);
         }
     });
 

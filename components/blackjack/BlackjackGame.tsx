@@ -33,7 +33,7 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
     const [dealerCards, setDealerCards] = useState<any[]>([]);
     const [dealerCardsSum, setDealerCardsSum] = useState<number>(0);
     const [currentPlayer, setCurrentPlayer] = useState<any>({});
-    // const [cardLeftInShoe, setCardsLeftInShoe] = useState<number>(0);
+    const [cardLeftInShoe, setCardsLeftInShoe] = useState<number>(0);
 
     const authData: SocketAuth = {
         roomId: props.roomId,
@@ -80,11 +80,13 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
         socket.on('preround_update', (data) => {
             console.log("PRE-UPDATE", data);
             updateGameState(data);
+            setCardsLeftInShoe(data.cardsLeft);
         });
 
         socket.on('game_update', (data) => {
             console.log("GAME-UPDATE", data);
             updateGameState(data);
+            setCardsLeftInShoe(data.cardsLeft);
         });
 
         socket.on('player_update', (data) => {
@@ -105,14 +107,14 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
 
     if (showWaitingForGameToStart) {
         return (
-            <BeforeGameStarts players={players} gameHash={props.gameHash} currentUserIsCreator={props.currentUserIsCreator} startGame={() => socket.emit('start_game', authData)} ></BeforeGameStarts>
+            <BeforeGameStarts players={players} gameHash={props.gameHash} currentUserIsCreator={props.currentUserIsCreator} startGame={() => socket.emit('start_game', authData)}></BeforeGameStarts>
         );
     }
 
     return (
         <>
             {/* teraz w GameTable.tsx jest to co pisałeś */}
-            <GameTable players={players} dealerCards={dealerCards} socket={socket} authData={authData} currentPlayer={currentPlayer} dealerCardsSum={dealerCardsSum} settings={props.settings}></GameTable>
+            <GameTable players={players} dealerCards={dealerCards} socket={socket} authData={authData} currentPlayer={currentPlayer} dealerCardsSum={dealerCardsSum} settings={props.settings} cardsInShoe={cardLeftInShoe}></GameTable>
         </>
     );
 }

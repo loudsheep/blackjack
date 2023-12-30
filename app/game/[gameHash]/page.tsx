@@ -82,8 +82,13 @@ export default async function GamePage({ params }: GamePageProps) {
         }
     }
     // TODO join game via route /game/join
+    let settings = {
+        minBet: game.settings.minBet,
+        maxBet: game.settings.maxBet,
+        startingStack: game.settings.startingStack,
+    }
 
     return (
-        <BlackjackGame token={user_token.value} gameHash={params.gameHash} username={username} roomId={roomId} currentUserIsCreator={isCreator} settings={game.settings}></BlackjackGame>
+        <BlackjackGame token={user_token.value} gameHash={params.gameHash} username={username} roomId={roomId} currentUserIsCreator={isCreator} settings={settings}></BlackjackGame>
     );
 }
