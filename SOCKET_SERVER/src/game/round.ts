@@ -126,7 +126,7 @@ export const handleDealerCardDrawingAndNextRound = async (game: GameData, emitEv
     await delay(2000);
 
     if (game.shoe.length < 50) {
-        generateRandomShoe(game, 6);
+        generateRandomShoe(game, Number.parseInt(process.env.DECKS_IN_SHOE) || 6);
     }
 
     resetStateBeforeNextRound(game);
