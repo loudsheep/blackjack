@@ -1,4 +1,5 @@
 import http from "http";
+import https from "https";
 import { Server } from "socket.io";
 import dotenv from "dotenv";
 import path from "path";
@@ -11,10 +12,16 @@ import { resetStateBeforeNextRound, respondToPlayerAction, startRound } from "./
 import { addPlayerToGame } from "./game/players";
 
 dotenv.config({ path: path.resolve(__dirname + "../../../.env") });
-const httpServer = http.createServer();
+
+const httpServer = process.env.SOCKET_USE_HTTPS == "true" ? https.createServer({
+    key: process.env.SOCKET_HTTPS_KEY_PATH,
+    cert: process.env.SOCKET_HTTPS_CERT_PATH,
+}) : http.createServer();
+
 const io = new Server(httpServer, {
     cors: {
-        origin: "http://localhost:3000", // Replace with frontend URL - TODO
+        // origin: "http://localhost:3000", // Replace with frontend URL - TODO
+        origin: "*", // Replace with frontend URL - TODO
         methods: ["GET", "POST"],
         allowedHeaders: ["my-custom-header"],
         credentials: true,
@@ -119,12 +126,12 @@ io.on('connection', (socket) => {
             setTimeoutForBetting(game, () => {
                 game.betsClosedTimeout = null;
                 game.bettingTime = false;
-                
+
                 sendPlayerDataUpdate(game, emitEvent);
-                
+
                 io.to(game.socketRoomId).emit("betting_ended");
                 startRound(game, emitEvent);
-                
+
             }, 8000, () => io.to(game.socketRoomId).emit('bet_timeout_started', { time: 8000 }));
 
             sendPlayerDataUpdate(game, emitEvent);
