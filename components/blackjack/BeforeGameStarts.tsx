@@ -49,11 +49,13 @@ export default function BeforeGameStarts({ players, gameHash, currentUserIsCreat
                     <div className='flex justify-start items-center' style={{ flex: "2" }}>
                         <Image src={"/profile.png"} alt='Profile img' width={30} height={30} className='mr-5'></Image>
                         <p className='font-bold'>{value.username}</p>
-                        {value.creator && (
+                        {value.creator ? (
                             <p className='ml-1 text-green-800'>
                                 (game creator)
-                                TODO: kick/ban buttons for game creator
+
                             </p>
+                        ) : (
+                            <>TODO: kick/ban buttons for game creator</>
                         )}
                     </div>
 

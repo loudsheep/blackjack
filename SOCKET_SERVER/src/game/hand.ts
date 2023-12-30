@@ -56,7 +56,7 @@ export class Hand {
     public isBlackjackHand(): boolean {
         if (this.cards.length != 2) return false;
 
-        return (this.cards[0].numValue == 11) && (this.cards[1].numValue == 10);
+        return (this.cards[0].numValue + this.cards[1].numValue) == 21;
     }
 
     public toObject() {

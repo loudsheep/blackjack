@@ -107,11 +107,12 @@ export const handleDealerCardDrawingAndNextRound = async (game: GameData, emitEv
     for (const player of game.currentRound.participants) {
         for (const hand of player.hands) {
             if (hand.winAmount == null) {
+                let handValue = higestBelow(hand.handValue(), 21);
                 if (x > 21) {
                     hand.winAmount = hand.bet;
-                } else if (higestBelow(hand.handValue(), 21) < x) {
+                } else if (handValue < x) {
                     hand.winAmount = -hand.bet;
-                } else if (higestBelow(hand.handValue(), 21) == x) {
+                } else if (handValue == x) {
                     hand.winAmount = 0;
                 } else {
                     hand.winAmount = hand.bet;
@@ -139,7 +140,7 @@ export const handleDealerCardDrawingAndNextRound = async (game: GameData, emitEv
     sendPlayerDataUpdate(game, emitEvent);
     setTimeout(() => {
         emitEvent(game.socketRoomId, "hand_starting", game.gameUpdateData());
-        
+
         game.bettingTime = true;
         sendPlayerDataUpdate(game, emitEvent);
     }, 2_000);
