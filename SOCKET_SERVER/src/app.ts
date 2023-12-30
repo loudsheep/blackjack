@@ -10,12 +10,13 @@ import { cardsLeftInShoe, generateRandomShoe } from "./game/cards";
 import { placeBet, setTimeoutForBetting } from "./game/bets";
 import { resetStateBeforeNextRound, respondToPlayerAction, startRound } from "./game/round";
 import { addPlayerToGame } from "./game/players";
+import { readFileSync } from "fs";
 
 dotenv.config({ path: path.resolve(__dirname + "../../../.env") });
 
 const httpServer = process.env.SOCKET_USE_HTTPS == "true" ? https.createServer({
-    key: process.env.SOCKET_HTTPS_KEY_PATH,
-    cert: process.env.SOCKET_HTTPS_CERT_PATH,
+    key: readFileSync(process.env.SOCKET_HTTPS_KEY_PATH),
+    cert: readFileSync(process.env.SOCKET_HTTPS_CERT_PATH),
 }) : http.createServer();
 
 const io = new Server(httpServer, {
