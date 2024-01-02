@@ -27,7 +27,7 @@ export default function BeforeGameStarts({ players, gameHash, currentUserIsCreat
             </div>
 
             <span className='w-full mt-5'>Game URL:</span>
-            <CopyToClipboard className='bg-green-700 rounded-lg p-5 w-full' text={"http://localhost:3000" + `/game/${gameHash}`}></CopyToClipboard>
+            <CopyToClipboard className='bg-green-700 rounded-lg p-5 w-full' text={process.env.NEXT_PUBLIC_BASE_URL + `/game/${gameHash}`}></CopyToClipboard>
 
             {currentUserIsCreator && (
                 <button

@@ -6,6 +6,7 @@ import Head from 'next/head'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
+    metadataBase: new URL(process.env.BASE_PATH ?? ""),
     title: 'Blackjack!',
     description: 'Online Blackjack games for you and your friends!',
     openGraph: {

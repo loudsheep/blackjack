@@ -201,7 +201,7 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
             )}
 
             {showBettingOptions && (
-                <BetForm minValue={settings.minBet} maxValue={Math.min(currentPlayer.stack, settings.maxBet)} startValue={lastBet} step={10} callback={placeBet} confirmButtonText='Place bet' className='w-1/2'></BetForm>
+                <BetForm minValue={settings.minBet} maxValue={Math.min(currentPlayer.stack, settings.maxBet)} startValue={Math.min(lastBet, currentPlayer.stack)} step={Math.min(10, Math.ceil(currentPlayer.stack / 10))} callback={placeBet} confirmButtonText='Place bet' className='w-1/2'></BetForm>
             )}
 
             {betCountdown !== null && (
