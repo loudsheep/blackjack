@@ -21,9 +21,7 @@ export default async function CreatePage() {
     if (!user_token || !(await getUserameFromToken(user_token.value))) {
         return (
             <>
-                <h1 className='mt-10 text-2xl font-bold'>Enter yout username</h1>
-                <h2 className='mb-10'>Before you create the game</h2>
-                <CreateUserName redirectUrl={`/create`}></CreateUserName>
+                <CreateUserName redirectUrl={`/create`} h1='Enter yout username' h2='Before you create the game'></CreateUserName>
             </>
         );
     }
