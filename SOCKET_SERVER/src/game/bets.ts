@@ -35,7 +35,7 @@ export const timeLeftForBetting = (game: GameData) => {
     if (game.betsClosedTimeout) {
         let x = Date.now() - game.betsClosedTimeoutStartTime;
         x = game.betsClosedTimeout._idleTimeout - x;
-        
+
         return x;
     }
     return null;

@@ -1,5 +1,6 @@
 import { timeLeftForBetting } from "../game/bets";
 import { GameData } from "../game/gameData";
+import { playerCanInsureBet, timeLeftForInsurance } from "../game/insurance";
 import { Player } from "../game/players";
 import { possiblePlayerHandActions } from "../game/round";
 
@@ -37,8 +38,12 @@ export const sendPlayerDataUpdate = (game: GameData, socketEmit: (roomId: string
             if (player.roundBet) socketEmit(player.token, 'my_turn', { type: "bet_timeout", time: timeLeftForBetting(game) });
             else socketEmit(player.token, 'my_turn', { type: "bet", time: timeLeftForBetting(game) });
 
-            // socketEmit(player.token, 'my_turn', { type: "bet", time: timeLeftForBetting(game) });
             continue;
+        } else if (game.insuranceOpen) {
+            if (!playerCanInsureBet(game, player)) socketEmit(player.token, 'my_turn', { type: "insurance_timeout", time: timeLeftForInsurance(game) });
+            else socketEmit(player.token, 'my_turn', { type: "insurance", time: timeLeftForInsurance(game) });
+
+            continue
         }
 
         if (game.currentRound.currentPlayerIndex == undefined) continue;

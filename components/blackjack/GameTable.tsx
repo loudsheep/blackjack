@@ -31,6 +31,8 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
     const [showPlayerActions, setShowPlayerActions] = useState<boolean>(false);
     const [playerActions, setPlayerActions] = useState<string[]>([]);
     const [betCountdown, setBetCountdown] = useState<number | null>(null);
+    const [insuranceCountdown, setInsuranceCountdown] = useState<number | null>(null);
+    const [showInsurance, setShowInsurance] = useState<boolean>(false);
     const [lastBet, setLastBet] = useState<number>(0);
 
     const [pauseRequested, setPauseRequested] = useState<boolean>(false);
@@ -43,6 +45,10 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
 
     const takeAction = (action: string) => {
         socket.emit('take_action', { auth: authData, action })
+    };
+
+    const insureBet = () => {
+        socket.emit('take_action', { auth: authData, action: "insure" })
     };
 
     useEffect(() => {
@@ -71,6 +77,11 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
                 setShowBettingOptions(true);
             } else if (data.type == "bet_timeout") {
                 if (data.time) setBetCountdown(Date.now() + data.time);
+            } else if (data.type == "insurance") {
+                if (data.time) setInsuranceCountdown(Date.now() + data.time);
+                setShowInsurance(true);
+            } else if (data.type == "insurance_timeout") {
+                if (data.time) setInsuranceCountdown(Date.now() + data.time);
             } else if (data.type == "cardAction") {
                 setShowPlayerActions(true);
                 setPlayerActions(data.actions);
@@ -81,6 +92,8 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
             setShowPlayerActions(false);
             setShowBettingOptions(false);
             setBetCountdown(null);
+            setShowInsurance(false);
+            setInsuranceCountdown(null);
 
             console.log("TURN FINISHED");
         });
@@ -177,6 +190,9 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
 
                             <div><p>{value.username}</p></div>
                             S: {value.stack}
+                            {value.insurance > 0 && (
+                                <p>Insurance: {value.insurance}</p>
+                            )}
                             {(value.participates === false) && (
                                 <p className='font-bold text-red-400'>PLAYER DOES NOT PARTICIPATE</p>
                             )}
@@ -191,11 +207,15 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
                         {playerActions.map((action, idx) => (
                             <button key={idx} onClick={() => takeAction(action)}>{action.toUpperCase()}</button>
                         ))}
+                    </div>
+                </div>
+            )}
 
-                        {/* <button onClick={() => takeAction('double')}>DOUBLE</button>
-                        <button onClick={() => takeAction('split')}>SPLIT</button>
-                        <button onClick={() => takeAction('stand')}>STAND</button>
-                        <button onClick={() => takeAction('hit')}>HIT</button> */}
+            {showInsurance && (
+                <div className="lover_table">
+                    <div className="action_buttons_space">
+                        <button onClick={() => insureBet()}>Insure Bet</button>
+                        <button onClick={() => setShowInsurance(false)}>X</button>
                     </div>
                 </div>
             )}
@@ -205,7 +225,17 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
             )}
 
             {betCountdown !== null && (
-                <Countdown date={betCountdown} precision={100} key={betCountdown} className='text-white'></Countdown>
+                <>
+                    Bets:
+                    <Countdown date={betCountdown} precision={100} key={betCountdown} className='text-white'></Countdown>
+                </>
+            )}
+
+            {insuranceCountdown !== null && (
+                <>
+                    Insurane:
+                    <Countdown date={insuranceCountdown} precision={100} key={insuranceCountdown} className='text-white'></Countdown>
+                </>
             )}
         </div>
     )

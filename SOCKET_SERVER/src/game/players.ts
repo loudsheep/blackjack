@@ -13,6 +13,7 @@ export type Player = {
     stack: number,
 
     roundBet?: number,
+    insurance?: number,
     cards?: Card[][],
     hands: Hand[],
     participates?: boolean;
@@ -40,6 +41,15 @@ export const addPlayerToGame = async (game: GameData, userToken: string, usernam
 
 export const getPlayer = (game: GameData, token: string): Player => {
     for (const pl of game.players) {
+        if (pl.token === token) {
+            return pl;
+        }
+    }
+    return null;
+}
+
+export const getPlayerFromParticipants = (game: GameData, token: string): Player => {
+    for (const pl of game.currentRound.participants) {
         if (pl.token === token) {
             return pl;
         }
@@ -75,6 +85,7 @@ export const getSafePlayersData = (game: GameData) => {
             roundBet: pl.roundBet,
             participates: pl.participates,
             creator: pl.creator,
+            insurance: pl.insurance,
         });
     }
     return result;

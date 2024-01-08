@@ -1,9 +1,10 @@
-import { sendPlayerDataUpdate } from "../lib/auth";
+import { authenticateUser, sendPlayerDataUpdate } from "../lib/auth";
 import { delay } from "../util/util";
 import { cardsLeftInShoe, dealToParticipants, drawCard, generateRandomShoe } from "./cards";
 import { GameData } from "./gameData";
 import { updateGameStartedInDB } from "./gameDataManager";
 import { Hand, calculateActionsForHands } from "./hand";
+import { collectInsurance, payInsuredPlayers, playerCanInsureBet, setTimeoutForInsurance } from "./insurance";
 import { Player, getParticipants } from "./players";
 
 type EmitEventFunction = (roomId: string | string[], event: string, data: any) => void;
@@ -163,11 +164,40 @@ export const startRound = (game: GameData, emitEvent: EmitEventFunction) => {
     dealToParticipants(game);
     calculateActionsForHands(game);
 
-    participants[0].isThisPlayersTurn = true;
-    game.currentRound.currentPlayerIndex = 0;
-    game.currentRound.currentPlayerHandIndex = 0;
+    // open insurance for players
+    if (game.dealerCards.cards[0].value == "ace") {
+        game.insuranceOpen = true;
 
-    nextPlayerOrHandTurn(game, "self_call", emitEvent);
+        setTimeoutForInsurance(game, () => {
+            game.insuranceOpen = false;
+            game.insuranceTimeout = null;
+
+            if (game.dealerCards.cards[1].numValue == 10) {
+                payInsuredPlayers(game);
+                game.dealerCards.cards[1].isBack = false;
+
+                handleDealerCardDrawingAndNextRound(game, emitEvent);
+            } else {
+                collectInsurance(game);
+                sendPlayerDataUpdate(game, emitEvent);
+
+                participants[0].isThisPlayersTurn = true;
+                game.currentRound.currentPlayerIndex = 0;
+                game.currentRound.currentPlayerHandIndex = 0;
+
+                nextPlayerOrHandTurn(game, "self_call", emitEvent);
+            }
+
+        }, 5000);
+
+        sendPlayerDataUpdate(game, emitEvent);
+    } else {
+        participants[0].isThisPlayersTurn = true;
+        game.currentRound.currentPlayerIndex = 0;
+        game.currentRound.currentPlayerHandIndex = 0;
+
+        nextPlayerOrHandTurn(game, "self_call", emitEvent);
+    }
 
     emitEvent(game.socketRoomId, "game_update", game.gameUpdateData());
 };
@@ -213,6 +243,22 @@ export const nextPlayerOrHandTurn = (game: GameData, lastAction: any, emitEvent:
 
 export const respondToPlayerAction = async (game: GameData, data: any, emitEvent: EmitEventFunction) => {
     let currentPlayer = game.currentRound.participants[game.currentRound.currentPlayerIndex];
+    let authPlayer = authenticateUser(game, data.auth.token).playerData;
+
+    // handle insurance
+    if (data.action == "insure") {
+
+        if (!game.insuranceOpen) return;
+        if (!playerCanInsureBet(game, authPlayer)) return;
+
+        authPlayer.insurance = Math.floor(authPlayer.roundBet);
+        authPlayer.stack -= authPlayer.insurance;
+
+        emitEvent(game.socketRoomId, "game_update", game.gameUpdateData());
+        sendPlayerDataUpdate(game, emitEvent);
+        return;
+    }
+
     let possibleActions = possiblePlayerHandActions(game, currentPlayer, game.currentRound.currentPlayerHandIndex ?? 0);
     let currentHand = currentPlayer.hands[game.currentRound.currentPlayerHandIndex];
 
