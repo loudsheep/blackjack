@@ -21,6 +21,7 @@ export class Hand {
     }
 
     public canDouble(currentStack: number): boolean {
+        if (this.cards.length > 2) return false;
         if (currentStack < this.bet) return false;
 
         return !this.playerHasDoubled;
