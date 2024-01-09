@@ -15,6 +15,8 @@ type BeforeGameStartsProps = {
 };
 
 export default function BeforeGameStarts({ players, gameHash, currentUserIsCreator, startGame }: BeforeGameStartsProps) {
+    console.log(players);
+    
     return (
         <CommonLayout>
             <h1 className='text-2xl font-semibold m-10'>Waiting for game creator to start or resume the game</h1>
@@ -43,8 +45,9 @@ export default function BeforeGameStarts({ players, gameHash, currentUserIsCreat
             )}
 
             <h2 className='m-5'>Players that already joined:</h2>
+        
 
-            {players.map((value, idx) => (
+            {players && players.map((value, idx) => (
                 <div key={idx} className='flex bg-green-600 rounded-md w-full m-2 justify-center items-center p-5'>
                     <div className='flex justify-start items-center' style={{ flex: "2" }}>
                         <Image src={"/profile.png"} alt='Profile img' width={30} height={30} className='mr-5'></Image>

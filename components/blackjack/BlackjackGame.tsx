@@ -29,11 +29,13 @@ type NewUserType = {
 
 export default function BlackjackGame(props: BlackjacjGameProps) {
     const [showWaitingForGameToStart, setShowWaitingForGameToStart] = useState<boolean>(true);
-    const [players, setPlayers] = useState<any[]>([]);
-    const [dealerCards, setDealerCards] = useState<any[]>([]);
-    const [dealerCardsSum, setDealerCardsSum] = useState<number>(0);
+    // const [players, setPlayers] = useState<any[]>([]);
+    // const [dealerCards, setDealerCards] = useState<any[]>([]);
+    // const [dealerCardsSum, setDealerCardsSum] = useState<number>(0);
+    const [gameData, setGameData] = useState<any>({});
+
     const [currentPlayer, setCurrentPlayer] = useState<any>({});
-    const [cardLeftInShoe, setCardsLeftInShoe] = useState<number>(0);
+    // const [cardLeftInShoe, setCardsLeftInShoe] = useState<number>(0);
 
     const authData: SocketAuth = {
         roomId: props.roomId,
@@ -43,10 +45,14 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
     };
 
     const updateGameState = (data: any) => {
-        setPlayers(data.players);
+        // setPlayers(data.players);
         setShowWaitingForGameToStart(!data.gameStarted);
-        setDealerCards(data.dealerCards);
-        setDealerCardsSum(data.dealerCardsSum);
+        // setDealerCards(data.dealerCards);
+        // setDealerCardsSum(data.dealerCardsSum);
+
+        setGameData(data);
+        console.log(data);
+        
 
         for (const player of data.players) {
             if (player.token == authData.token) {
@@ -80,13 +86,13 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
         socket.on('preround_update', (data) => {
             console.log("PRE-UPDATE", data);
             updateGameState(data);
-            setCardsLeftInShoe(data.cardsLeft);
+            // setCardsLeftInShoe(data.cardsLeft);
         });
 
         socket.on('game_update', (data) => {
             console.log("GAME-UPDATE", data);
             updateGameState(data);
-            setCardsLeftInShoe(data.cardsLeft);
+            // setCardsLeftInShoe(data.cardsLeft);
         });
 
         socket.on('player_update', (data) => {
@@ -107,14 +113,13 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
 
     if (showWaitingForGameToStart) {
         return (
-            <BeforeGameStarts players={players} gameHash={props.gameHash} currentUserIsCreator={props.currentUserIsCreator} startGame={() => socket.emit('start_game', authData)}></BeforeGameStarts>
+            <BeforeGameStarts players={gameData.players} gameHash={props.gameHash} currentUserIsCreator={props.currentUserIsCreator} startGame={() => socket.emit('start_game', authData)}></BeforeGameStarts>
         );
     }
 
     return (
         <>
-            {/* teraz w GameTable.tsx jest to co pisałeś */}
-            <GameTable players={players} dealerCards={dealerCards} socket={socket} authData={authData} currentPlayer={currentPlayer} dealerCardsSum={dealerCardsSum} settings={props.settings} cardsInShoe={cardLeftInShoe}></GameTable>
+            <GameTable gameData={gameData} socket={socket} authData={authData} currentPlayer={currentPlayer} settings={props.settings}></GameTable>
         </>
     );
 }

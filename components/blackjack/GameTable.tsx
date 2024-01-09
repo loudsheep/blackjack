@@ -11,9 +11,10 @@ import BetForm from '../BetForm';
 import Countdown from 'react-countdown';
 
 type GameTableProps = {
-    players: any,
-    dealerCards: any,
-    dealerCardsSum: number,
+    gameData: any,
+    // players: any,
+    // dealerCards: any,
+    // dealerCardsSum: number,
     currentPlayer: any,
     socket: Socket,
     authData: SocketAuth,
@@ -22,11 +23,11 @@ type GameTableProps = {
         maxBet: number,
         startingStack: number,
     },
-    cardsInShoe: number,
+    // cardsInShoe: number,
 };
 
 // TODO change this { players, socket, authData, ... } to just props: GameTableProps
-export default function GameTable({ players, socket, authData, dealerCards, currentPlayer, dealerCardsSum, settings, cardsInShoe }: GameTableProps) {
+export default function GameTable({ socket, authData, currentPlayer, settings, gameData }: GameTableProps) {
     const [showBettingOptions, setShowBettingOptions] = useState<boolean>(false);
     const [showPlayerActions, setShowPlayerActions] = useState<boolean>(false);
     const [playerActions, setPlayerActions] = useState<string[]>([]);
@@ -132,26 +133,26 @@ export default function GameTable({ players, socket, authData, dealerCards, curr
                     <div>
                     </div>
                     <div>
-                        <p>Dealer cards - {dealerCardsSum}</p>
+                        <p>Dealer cards - {gameData.dealerCardsSum}</p>
                         <div className="dealer_cards">
-                            {dealerCards.map((value: any, idx: any) => (
+                            {gameData.dealerCards.map((value: any, idx: any) => (
                                 <Card suit={value.suit} value={value.value} key={idx} className='ml-1 h-full'></Card>
                             ))}
                         </div>
                     </div>
                     <div className="deck">
                         <img src={logo.src} alt="aha" />
-                        {cardsInShoe} cards left
+                        {gameData.cardsLeft} cards left
                     </div>
                 </div>
                 <div className="players">
-                    {players.map((value: any, idx: any) => (
+                    {gameData.players.map((value: any, idx: any) => (
                         <div key={idx}>
                             <div className="cards mb-8">
                                 {Array.isArray(value.hands) && (
                                     <>
                                         {value.hands.map((hand: any, idx: any) => (
-                                            <div key={idx} className='hand text-center'>
+                                            <div key={idx} className={'hand text-center rounded-md ' + (gameData.currentPlayer == value.identifier && gameData.currentHand == idx ? 'bg-red-500 bg-opacity-70' : '')}>
                                                 {hand.cards.map((card: any, idx2: any) => (
                                                     <Card style={{ bottom: (idx2 * 20) + "px", left: (idx2 * 20) + "px" }} suit={card.suit} value={card.value} key={idx2} className={'w-32 absolute z-[' + idx2 + ']'}></Card>
                                                 ))}

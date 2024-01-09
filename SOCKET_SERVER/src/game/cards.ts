@@ -92,3 +92,22 @@ export const dealToParticipants = (game: GameData) => {
         game.dealerCards.cards.push(dC);
     }
 };
+
+export const getDealerCards = (game: GameData) => {
+    let cards = [];
+    // if dealer's cards are turned back, send just that
+    for (const card of game.dealerCards.cards) {
+        if (card.isBack) {
+            cards.push({
+                suit: 'back'
+            });
+        } else {
+            cards.push({
+                suit: card.suit,
+                value: card.value,
+                numValue: card.numValue,
+            });
+        }
+    }
+    return cards;
+}

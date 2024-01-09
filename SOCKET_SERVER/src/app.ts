@@ -107,6 +107,16 @@ io.on('connection', (socket) => {
 
         game.pauseRequested = true;
 
+        // if game is still in betting phase and no player has betted yet
+        if (game.bettingTime && game.betsClosedTimeout == null) {
+            game.gameStarted = false;
+            game.pauseRequested = false;
+
+            io.to(game.socketRoomId).emit('game_paused');
+            await updateGameStartedInDB(game);
+            return;
+        }
+
         io.to(game.socketRoomId).emit('pause_request');
     });
 

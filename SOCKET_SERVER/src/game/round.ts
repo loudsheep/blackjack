@@ -222,7 +222,8 @@ export const nextPlayerOrHandTurn = (game: GameData, lastAction: any, emitEvent:
     // player has more hands to play with, switch to the next one and check for it's actions
     if (game.currentRound.currentPlayerHandIndex < currentPlayer.hands.length - 1) {
         game.currentRound.currentPlayerHandIndex++;
-
+        
+        emitEvent(game.socketRoomId, "game_update", game.gameUpdateData());
         nextPlayerOrHandTurn(game, "self_call", emitEvent);
         return;
     }
@@ -231,7 +232,8 @@ export const nextPlayerOrHandTurn = (game: GameData, lastAction: any, emitEvent:
     if (game.currentRound.currentPlayerIndex < game.currentRound.participants.length - 1) {
         game.currentRound.currentPlayerIndex++;
         game.currentRound.currentPlayerHandIndex = 0;
-
+        
+        emitEvent(game.socketRoomId, "game_update", game.gameUpdateData());
         nextPlayerOrHandTurn(game, "self_call", emitEvent);
         return;
     }

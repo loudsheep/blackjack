@@ -1,4 +1,4 @@
-import { cardsLeftInShoe, drawCard } from "./cards";
+import { cardsLeftInShoe, drawCard, getDealerCards } from "./cards";
 import { Card } from "../types/CardType";
 import { Player, getParticipants, getPlayer, getSafePlayersData } from "./players";
 import { Hand } from "./hand";
@@ -42,6 +42,7 @@ export class GameData {
     public betsClosedTimeout: any = null;
     public betsClosedTimeoutStartTime: number | null = null;
 
+    // TODO
     public playerActionTimeout: any = null;
 
     public insuranceTimeout: any = null;
@@ -63,62 +64,20 @@ export class GameData {
         this.settings = settings;
     }
 
-    // TODO finish this
-    // public getPlayerPossibleActions(token: string) {
-    //     let player = getPlayer(this, token);
-
-    //     if (player.cards.length == 0) return [];
-    //     if (player.cards[0].length == 0) return [];
-
-    //     let result = [];
-
-    // };
-
-    // public dealAllCards() {
-    //     if (getParticipants(this).length == 0) return;
-
-    //     for (let i = 0; i < 2; i++) {
-    //         for (const player of this.players) {
-    //             if (player.participates !== true) continue;
-
-    //             if (player.cards.length == 0) {
-    //                 player.cards.push([]);
-    //             }
-
-    //             player.cards[0].push(drawCard(this));
-    //         }
-
-    //         let dC = drawCard(this);
-    //         if (i == 1) dC.isBack = true;
-    //         this.dealerCards.push(dC);
-    //     }
-    // }
-
-    public getDealerCards() {
-        let cards = [];
-        for (const card of this.dealerCards.cards) {
-            if (card.isBack) {
-                cards.push({
-                    suit: 'back'
-                });
-            } else {
-                cards.push({
-                    suit: card.suit,
-                    value: card.value,
-                    numValue: card.numValue,
-                });
-            }
-        }
-        return cards;
-    }
-
     public gameUpdateData() {
-        return {
+        let obj: { [k: string]: any } = {
             players: getSafePlayersData(this),
             gameStarted: this.gameStarted,
-            dealerCards: this.getDealerCards(),
+            dealerCards: getDealerCards(this),
             dealerCardsSum: this.dealerCardsSum,
             cardsLeft: cardsLeftInShoe(this),
         };
+
+        if (this.currentRound?.currentPlayerIndex >= 0) {
+            obj.currentPlayer = this.currentRound.participants[this.currentRound.currentPlayerIndex].identifier;
+            obj.currentHand = this.currentRound.currentPlayerHandIndex;
+        }
+
+        return obj;
     }
 }
