@@ -15,7 +15,7 @@ export const POST = async (request: NextRequest) => {
 
         if (!user) return new NextResponse("User token missing or incorrect token", { status: 400 });
 
-        let hash = randomBytes(10).toString('base64url');
+        let hash = randomBytes(5).toString('base64url');
         let socketRoomId = randomBytes(16).toString('base64url');
 
         await Game.create({
