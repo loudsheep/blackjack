@@ -9,7 +9,7 @@ import { authenticateUser, sendPlayerDataUpdate } from "./lib/auth";
 import { cardsLeftInShoe, generateRandomShoe } from "./game/cards";
 import { placeBet, setTimeoutForBetting } from "./game/bets";
 import { resetStateBeforeNextRound, respondToPlayerAction, startRound } from "./game/round";
-import { addPlayerToGame } from "./game/players";
+import { addPlayerToGame, getPlayerByIdentifier, kickPlayer } from "./game/players";
 import { readFileSync } from "fs";
 
 dotenv.config({ path: path.resolve(__dirname + "../../../.env") });
@@ -57,6 +57,10 @@ io.on('connection', (socket) => {
         }
 
         await addPlayerToGame(game, data.token, data.username);
+
+        if (game.bannedPlayers.includes(data.token)) {
+            return;
+        }
 
         // join 2 rooms. First is general room for every player, and second is secifically for this user to send their updates
         await socket.join([data.roomId, data.token]);
@@ -169,6 +173,48 @@ io.on('connection', (socket) => {
         }
 
         respondToPlayerAction(game, data, emitEvent);
+    });
+
+    socket.on('kick', async (data) => {
+        let game = getGameByRoomId(games, data.auth.roomId);
+        let auth = authenticateUser(game, data.auth.token);
+
+        // do nothing if the request is comming from not authenticated user or not a creator
+        if (!auth.authenticated || !auth.isCreator) {
+            return;
+        }
+
+        let player = getPlayerByIdentifier(game, data.identifier);
+        if (player) {
+            kickPlayer(game, player);
+            io.to(player.token).emit('kick_disconnect');
+
+            io.to(game.socketRoomId).emit('preround_update', game.gameUpdateData());
+        }
+    });
+
+    socket.on('ban', async (data) => {
+        let game = getGameByRoomId(games, data.auth.roomId);
+        let auth = authenticateUser(game, data.auth.token);
+
+        // do nothing if the request is comming from not authenticated user or not a creator
+        if (!auth.authenticated || !auth.isCreator) {
+            return;
+        }
+
+        let player = getPlayerByIdentifier(game, data.identifier);
+        if (player) {
+            kickPlayer(game, player);
+            io.to(player.token).emit('kick_disconnect');
+
+            io.to(game.socketRoomId).emit('preround_update', game.gameUpdateData());
+
+            game.bannedPlayers.push(player.token);
+
+            console.log(game.bannedPlayers);
+            
+            updateGameStartedInDB(game);
+        }
     });
 
     // socket.on("disconnect", () => {

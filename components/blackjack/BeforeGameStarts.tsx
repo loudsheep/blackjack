@@ -6,17 +6,18 @@ import CopyToClipboard from '../CopyToClipboard';
 type BeforeGameStartsProps = {
     players: {
         username: string,
+        identifier: string,
         stack: number,
         creator?: boolean
     }[],
     gameHash: string,
     currentUserIsCreator: boolean,
-    startGame: () => void
+    startGame: () => void,
+    kickPlayer: (identifier: string) => void,
+    banPlayer: (identifier: string) => void
 };
 
-export default function BeforeGameStarts({ players, gameHash, currentUserIsCreator, startGame }: BeforeGameStartsProps) {
-    console.log(players);
-    
+export default function BeforeGameStarts(props: BeforeGameStartsProps) {
     return (
         <CommonLayout>
             <h1 className='text-2xl font-semibold m-10'>Waiting for game creator to start or resume the game</h1>
@@ -29,13 +30,13 @@ export default function BeforeGameStarts({ players, gameHash, currentUserIsCreat
             </div>
 
             <span className='w-full mt-5'>Game URL:</span>
-            <CopyToClipboard className='bg-green-700 rounded-lg p-5 w-full' text={process.env.NEXT_PUBLIC_BASE_URL + `/game/${gameHash}`}></CopyToClipboard>
+            <CopyToClipboard className='bg-green-700 rounded-lg p-5 w-full' text={process.env.NEXT_PUBLIC_BASE_URL + `/game/${props.gameHash}`}></CopyToClipboard>
 
-            {currentUserIsCreator && (
+            {props.currentUserIsCreator && (
                 <button
                     className="relative bg-gradient-to-b from-red-700 to-red-800 hover:from-red-800 hover:to-red-900 text-white font-bold py-2 px-4 rounded-md shadow-md transition-all duration-300 mt-5"
                     style={{ border: '2px solid #440000' }}
-                    onClick={startGame}
+                    onClick={props.startGame}
                 >
                     <div className="flex items-center justify-center space-x-2">
                         <span className="text-xl">&#127183;</span>
@@ -45,26 +46,32 @@ export default function BeforeGameStarts({ players, gameHash, currentUserIsCreat
             )}
 
             <h2 className='m-5'>Players that already joined:</h2>
-        
 
-            {players && players.map((value, idx) => (
+
+            {props.players && props.players.map((value, idx) => (
                 <div key={idx} className='flex bg-green-600 rounded-md w-full m-2 justify-center items-center p-5'>
                     <div className='flex justify-start items-center' style={{ flex: "2" }}>
                         <Image src={"/profile.png"} alt='Profile img' width={30} height={30} className='mr-5'></Image>
                         <p className='font-bold'>{value.username}</p>
-                        {value.creator ? (
+                        {value.creator && (
                             <p className='ml-1 text-green-800'>
                                 (game creator)
 
                             </p>
-                        ) : (
-                            <>TODO: kick/ban buttons for game creator</>
                         )}
                     </div>
 
                     <div className='flex justify-end items-center' style={{ flex: "1" }}>
-                        <Image src={"/poker_chip.png"} alt='Chip img' width={25} height={25} className='mr-5'></Image>
+                        <Image src={"/poker_chip.png"} alt='Chip img' width={25} height={25} className='mr-3'></Image>
                         {value.stack}
+                        {(!value.creator && props.currentUserIsCreator) && (
+                            <>
+                                <button onClick={() => props.kickPlayer(value.identifier)} type="button" className="text-gray-900 bg-white bg-opacity-0 border border-green-700 focus:outline-none hover:bg-opacity-20 focus:ring-0 font-medium rounded-full text-sm px-5 py-2.5 mx-4">Kick</button>
+
+
+                                <button onClick={() => props.banPlayer(value.identifier)} type="button" className="text-white bg-red-600 border border-red-700 focus:outline-none hover:bg-opacity-80 focus:ring-0 font-medium rounded-full text-sm px-5 py-2.5">Ban</button>
+                            </>
+                        )}
                     </div>
                 </div>
             ))}

@@ -29,14 +29,8 @@ type NewUserType = {
 
 export default function BlackjackGame(props: BlackjacjGameProps) {
     const [showWaitingForGameToStart, setShowWaitingForGameToStart] = useState<boolean>(true);
-    // const [players, setPlayers] = useState<any[]>([]);
-    // const [dealerCards, setDealerCards] = useState<any[]>([]);
-    // const [dealerCardsSum, setDealerCardsSum] = useState<number>(0);
     const [gameData, setGameData] = useState<any>({});
-
     const [currentPlayer, setCurrentPlayer] = useState<any>({});
-    // const [cardLeftInShoe, setCardsLeftInShoe] = useState<number>(0);
-
     const authData: SocketAuth = {
         roomId: props.roomId,
         hash: props.gameHash,
@@ -52,7 +46,7 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
 
         setGameData(data);
         console.log(data);
-        
+
 
         for (const player of data.players) {
             if (player.token == authData.token) {
@@ -61,6 +55,14 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
                 setCurrentPlayer(player);
             }
         }
+    };
+
+    const kick = (identifier: string) => {
+        socket.emit("kick", { auth: authData, identifier })
+    };
+
+    const ban = (identifier: string) => {
+        socket.emit("ban", { auth: authData, identifier })
     };
 
     useEffect(() => {
@@ -99,6 +101,11 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
             setCurrentPlayer(data);
         });
 
+        socket.on('kick_disconnect', (data) => {
+            socket.disconnect();
+            window.location.replace("/");
+        });
+
         return () => {
             socket.off('new_user');
             socket.off('game_started');
@@ -113,7 +120,7 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
 
     if (showWaitingForGameToStart) {
         return (
-            <BeforeGameStarts players={gameData.players} gameHash={props.gameHash} currentUserIsCreator={props.currentUserIsCreator} startGame={() => socket.emit('start_game', authData)}></BeforeGameStarts>
+            <BeforeGameStarts players={gameData.players} gameHash={props.gameHash} currentUserIsCreator={props.currentUserIsCreator} startGame={() => socket.emit('start_game', authData)} kickPlayer={kick} banPlayer={ban}></BeforeGameStarts>
         );
     }
 

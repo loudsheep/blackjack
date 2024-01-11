@@ -48,6 +48,15 @@ export const getPlayer = (game: GameData, token: string): Player => {
     return null;
 }
 
+export const getPlayerByIdentifier = (game: GameData, identifier: string): Player => {
+    for (const pl of game.players) {
+        if (pl.identifier === identifier) {
+            return pl;
+        }
+    }
+    return null;
+}
+
 export const getPlayerFromParticipants = (game: GameData, token: string): Player => {
     for (const pl of game.currentRound.participants) {
         if (pl.token === token) {
@@ -56,6 +65,10 @@ export const getPlayerFromParticipants = (game: GameData, token: string): Player
     }
     return null;
 }
+
+export const kickPlayer = (game: GameData, player: Player) => {
+    game.players.splice(game.players.indexOf(player));
+};
 
 export const addPlayer = (game: GameData, player: Player) => {
     game.players.push(player);

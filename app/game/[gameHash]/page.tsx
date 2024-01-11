@@ -60,6 +60,8 @@ export default async function GamePage({ params }: GamePageProps) {
         );
     }
 
+    if (game.bannedPlayers.includes(user_token.value)) return notFound();
+
     let username = await getUserameFromToken(user_token.value);
     if (!username) {
         return (

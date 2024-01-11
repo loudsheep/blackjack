@@ -43,6 +43,7 @@ const GameSchema = new mongoose.Schema(
                 }
             }
         ],
+        bannedPlayers: [String],
         settings: {
             startingStack: {
                 type: Number,

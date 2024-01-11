@@ -26,6 +26,7 @@ export class GameData {
 
     // players, settings, currentRound
     public players: Player[];
+    public bannedPlayers: string[];
     public currentRound: Round;
     public settings: Settings;
 
@@ -41,6 +42,7 @@ export class GameData {
     // timeouts
     public betsClosedTimeout: any = null;
     public betsClosedTimeoutStartTime: number | null = null;
+    public pingForActiveHosts: any = null;
 
     // TODO
     public playerActionTimeout: any = null;
@@ -54,7 +56,8 @@ export class GameData {
         active: boolean,
         gameStarted: boolean,
         players: Player[],
-        settings: Settings
+        settings: Settings,
+        bannedPlayers: string[],
     ) {
         this.socketRoomId = socketRoomId;
         this.hash = hash;
@@ -62,6 +65,7 @@ export class GameData {
         this.gameStarted = gameStarted;
         this.players = players;
         this.settings = settings;
+        this.bannedPlayers = bannedPlayers;
     }
 
     public gameUpdateData() {
