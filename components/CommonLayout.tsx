@@ -17,7 +17,7 @@ export default function CommonLayout({
                     <div className="text-white text-2xl font-bold">Your Blackjack Game</div>
                 </a>
                 <div className="flex space-x-4">
-                    <a href="/about" className="text-white flex items-center" target='_blank'>About</a>
+                    <a href="/about" className="text-white flex items-center">About</a>
 
                     <a href="https://github.com/loudsheep/blackjack" className="text-white" target="_blank">
                         <button
