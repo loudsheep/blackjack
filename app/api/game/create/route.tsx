@@ -6,7 +6,7 @@ import { randomBytes } from "crypto";
 import { cookies } from 'next/headers'
 
 export const POST = async (request: NextRequest) => {
-    let { startingStack, minBet, maxBet, token, username } = await request.json();
+    let { startingStack, minBet, maxBet, enableChat, token, username } = await request.json();
 
     await connectMongoDB();
 
@@ -34,7 +34,8 @@ export const POST = async (request: NextRequest) => {
             settings: {
                 startingStack,
                 minBet,
-                maxBet
+                maxBet,
+                enableChat,
             }
         });
 
