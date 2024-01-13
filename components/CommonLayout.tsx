@@ -6,10 +6,10 @@ export default function CommonLayout({
     children?: React.ReactNode
 }) {
     return (
-        <div className="bg-green-500 h-screen flex flex-col items-center justify-start">
+        <div className="bg-green-500 min-h-screen flex flex-col items-center justify-start">
             <div
                 className="absolute inset-0 bg-cover bg-center z-0"
-                style={{ backgroundImage: 'url(/bg.png)', opacity: '0.1', zIndex: '2' }}
+                style={{ backgroundImage: 'url(/bg.png)', opacity: '0.1', zIndex: '2', backgroundAttachment: 'fixed' }}
             ></div>
             {/* Navigation Bar */}
             <nav className="bg-green-800 w-full p-4 flex justify-between items-center" style={{ zIndex: '3' }}>
