@@ -7,6 +7,7 @@ type Settings = {
     startingStack: number,
     minBet: number,
     maxBet: number,
+    enableChat: boolean,
 };
 
 type Round = {

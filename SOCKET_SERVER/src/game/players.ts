@@ -36,7 +36,7 @@ export const addPlayerToGame = async (game: GameData, userToken: string, usernam
     };
 
     addPlayer(game, newUser);
-    await addPlayerToGameInDB(game, newUser);
+    addPlayerToGameInDB(game, newUser);
 };
 
 export const getPlayer = (game: GameData, token: string): Player => {
@@ -65,10 +65,6 @@ export const getPlayerFromParticipants = (game: GameData, token: string): Player
     }
     return null;
 }
-
-export const kickPlayer = (game: GameData, player: Player) => {
-    game.players.splice(game.players.indexOf(player));
-};
 
 export const addPlayer = (game: GameData, player: Player) => {
     game.players.push(player);

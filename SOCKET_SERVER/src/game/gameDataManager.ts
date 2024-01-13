@@ -27,7 +27,7 @@ export const getGameData = async (games: GameData[], gameHash: string): Promise<
         return false;
     }
 
-    let gameData = new GameData(game.socketRoomId, gameHash, game.active, game.gameStarted, [], { startingStack: game.settings.startingStack, minBet: game.settings.minBet, maxBet: game.settings.maxBet }, game.bannedPlayers);
+    let gameData = new GameData(game.socketRoomId, gameHash, game.active, game.gameStarted, [], game.settings, game.bannedPlayers);
 
     for (const i of game.players) {
         addPlayer(gameData, {
@@ -58,8 +58,23 @@ export const getGameByRoomId = (games: GameData[], roomId: string): GameData | n
 export const updateGameStartedInDB = async (game: GameData) => {
     await connectMongoDB();
 
+    console.log("GAME UPDATE", game.players);
+
     await Game.updateOne({ hash: game.hash }, { gameStarted: game.gameStarted, bannedPlayers: game.bannedPlayers }).exec();
 }
+
+export const kickPlayer = async (game: GameData, player: Player) => {
+    for (let i = 0; i < game.players.length; i++) {
+        if (game.players[i].token == player.token) {
+            game.players.splice(i, 1);
+            break;
+        }
+    }
+
+    await connectMongoDB();
+
+    await Game.updateOne({ hash: game.hash }, { $pull: { players: { token: player.token } } }).exec();
+};
 
 export const addPlayerToGameInDB = async (game: GameData, player: Player) => {
     await connectMongoDB();

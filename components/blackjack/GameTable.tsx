@@ -9,6 +9,8 @@ import { SocketAuth } from '@/types/SocketAuthType';
 import Image from 'next/image';
 import BetForm from '../BetForm';
 import Countdown from 'react-countdown';
+import ChatWindow from './ChatWindow';
+import useChatHistory from '@/hooks/useChatHistory';
 
 type GameTableProps = {
     gameData: any,
@@ -35,6 +37,8 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
     const [insuranceCountdown, setInsuranceCountdown] = useState<number | null>(null);
     const [showInsurance, setShowInsurance] = useState<boolean>(false);
     const [lastBet, setLastBet] = useState<number>(0);
+
+    // const [history, setHistory, addToHistory] = useChatHistory();
 
     const [pauseRequested, setPauseRequested] = useState<boolean>(false);
 
@@ -115,6 +119,7 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
 
     return (
         <div className='body'>
+
             <div className="header">
                 <div>Game</div>
                 <div>Shop</div>
@@ -129,6 +134,9 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
                 )}
             </div>
             <div className="table">
+
+                {/* <ChatWindow></ChatWindow> */}
+
                 <div className="dealer">
                     <div>
                     </div>

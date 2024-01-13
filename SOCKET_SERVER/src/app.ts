@@ -4,12 +4,12 @@ import { Server } from "socket.io";
 import dotenv from "dotenv";
 import path from "path";
 import { IncomingData } from "./types/IncomingDataType";
-import { createGamesObject, getGameByRoomId, getGameData, updateGameStartedInDB } from "./game/gameDataManager";
+import { createGamesObject, getGameByRoomId, getGameData, kickPlayer, updateGameStartedInDB } from "./game/gameDataManager";
 import { authenticateUser, sendPlayerDataUpdate } from "./lib/auth";
 import { cardsLeftInShoe, generateRandomShoe } from "./game/cards";
 import { placeBet, setTimeoutForBetting } from "./game/bets";
 import { resetStateBeforeNextRound, respondToPlayerAction, startRound } from "./game/round";
-import { addPlayerToGame, getPlayerByIdentifier, kickPlayer } from "./game/players";
+import { addPlayerToGame, getPlayerByIdentifier } from "./game/players";
 import { readFileSync } from "fs";
 
 dotenv.config({ path: path.resolve(__dirname + "../../../.env") });
@@ -36,6 +36,7 @@ io.on('connection', (socket) => {
         io.to(roomId).emit(event, data);
     };
 
+    // game realted events
     socket.on('join_room', async (data) => {
         // check if game exists, if not get the game data from mongodb
         let game = getGameByRoomId(games, data.roomId);
@@ -211,10 +212,23 @@ io.on('connection', (socket) => {
 
             game.bannedPlayers.push(player.token);
 
-            console.log(game.bannedPlayers);
-            
             updateGameStartedInDB(game);
         }
+    });
+
+    // in-game chat events
+    socket.on('send_chat_msg', async (data) => {
+        let game = getGameByRoomId(games, data.auth.roomId);
+        let auth = authenticateUser(game, data.auth.token);
+
+        // do nothing if the request is comming from not authenticated user
+        if (!game.settings.enableChat || !auth.authenticated) {
+            return;
+        }
+
+        let msg = data.message.substring(0, 50);
+
+        io.to(game.socketRoomId).emit('recieve_chat_msg', { message: msg, author: auth.playerData.identifier, timestamp: Date.now() });
     });
 
     // socket.on("disconnect", () => {
