@@ -11,6 +11,7 @@ import BetForm from '../BetForm';
 import Countdown from 'react-countdown';
 import ChatWindow from './ChatWindow';
 import useChatHistory from '@/hooks/useChatHistory';
+import { ChatMessage } from '@/types/ChatMessageType';
 
 type GameTableProps = {
     gameData: any,
@@ -24,6 +25,7 @@ type GameTableProps = {
         minBet: number,
         maxBet: number,
         startingStack: number,
+        enableChat: boolean
     },
     // cardsInShoe: number,
 };
@@ -38,6 +40,8 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
     const [showInsurance, setShowInsurance] = useState<boolean>(false);
     const [lastBet, setLastBet] = useState<number>(0);
 
+    const [lastChatMessage, setLastChatMessage] = useState<ChatMessage | null>(null);
+
     // const [history, setHistory, addToHistory] = useChatHistory();
 
     const [pauseRequested, setPauseRequested] = useState<boolean>(false);
@@ -50,6 +54,12 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
 
     const takeAction = (action: string) => {
         socket.emit('take_action', { auth: authData, action })
+    };
+
+    const sendChatMessage = (message: string) => {
+        if (settings.enableChat) {
+            socket.emit("send_chat_msg", { auth: authData, message });
+        }
     };
 
     const insureBet = () => {
@@ -107,6 +117,10 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
             setPauseRequested(true);
         });
 
+        socket.on('recieve_chat_msg', (data) => {
+            setLastChatMessage(data);
+        });
+
         return () => {
             socket.off('hand_starting');
             socket.off('betting_ended');
@@ -135,7 +149,9 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
             </div>
             <div className="table">
 
-                {/* <ChatWindow></ChatWindow> */}
+                {settings.enableChat && (
+                    <ChatWindow sendMessage={sendChatMessage} lastMessage={lastChatMessage} currentUserIdentifier={currentPlayer.identifier}></ChatWindow>
+                )}
 
                 <div className="dealer">
                     <div>

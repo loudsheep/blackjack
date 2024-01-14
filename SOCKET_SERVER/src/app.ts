@@ -228,7 +228,7 @@ io.on('connection', (socket) => {
 
         let msg = data.message.substring(0, 50);
 
-        io.to(game.socketRoomId).emit('recieve_chat_msg', { message: msg, author: auth.playerData.identifier, timestamp: Date.now() });
+        io.to(game.socketRoomId).emit('recieve_chat_msg', { message: msg, author: auth.playerData.identifier, authorName: auth.playerData.username, timestamp: Date.now() });
     });
 
     // socket.on("disconnect", () => {

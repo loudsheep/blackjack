@@ -16,6 +16,7 @@ type BlackjacjGameProps = {
         minBet: number,
         maxBet: number,
         startingStack: number,
+        enableChat: boolean,
     },
 };
 

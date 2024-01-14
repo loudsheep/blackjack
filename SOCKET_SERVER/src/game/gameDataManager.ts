@@ -57,9 +57,6 @@ export const getGameByRoomId = (games: GameData[], roomId: string): GameData | n
 
 export const updateGameStartedInDB = async (game: GameData) => {
     await connectMongoDB();
-
-    console.log("GAME UPDATE", game.players);
-
     await Game.updateOne({ hash: game.hash }, { gameStarted: game.gameStarted, bannedPlayers: game.bannedPlayers }).exec();
 }
 
