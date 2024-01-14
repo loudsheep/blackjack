@@ -8,6 +8,7 @@ export default function AdvancedCreateGameForm() {
 
     // Function to toggle the accordion
     const toggleAccordion = () => {
+        console.log(!isAccordionOpen);
         setIsAccordionOpen(prevState => !prevState);
     };
 
@@ -25,7 +26,7 @@ export default function AdvancedCreateGameForm() {
                     <span>Show advanced options</span>
                     <svg
                         data-accordion-icon
-                        className={`w-3 h-3 rotate-${isAccordionOpen ? '180' : '0'} shrink-0`} // Toggle rotation based on state
+                        className={`w-3 h-3 transform rotate-${isAccordionOpen ? '180' : '0'} shrink-0`} // Toggle rotation based on state
                         aria-hidden="true"
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
@@ -36,20 +37,19 @@ export default function AdvancedCreateGameForm() {
                 </button>
             </h2>
             {/* Use conditional rendering based on the state to show or hide content */}
-            {isAccordionOpen && (
-                <div id="accordion-flush-body-1" className="py-1">
-                    <div className="flex mb-5">
+            <div id="accordion-flush-body-1" className={"py-1 " + (isAccordionOpen ? "" : "hidden")}>
+                <div className="flex mb-5">
 
-                        <div className="flex items-center h-5">
-                            <input id="enableChat" name="enableChat" aria-describedby="enableChat-text" type="checkbox" value="checked" defaultChecked={true} className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" />
-                        </div>
-                        <div className="ms-2 text-sm">
-                            <label htmlFor="enableChat" className="font-medium text-gray-900">Enable Chat</label>
-                            <p id="enableChat-text" className="text-xs font-normal text-gray-500">Allows players to use in-game realtime chat</p>
-                        </div>
+                    <div className="flex items-center h-5">
+                        <input id="enableChat" name="enableChat" aria-describedby="enableChat-text" type="checkbox" value="checked" defaultChecked={true} className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" />
                     </div>
+                    <div className="ms-2 text-sm">
+                        <label htmlFor="enableChat" className="font-medium text-gray-900">Enable Chat</label>
+                        <p id="enableChat-text" className="text-xs font-normal text-gray-500">Allows players to use in-game realtime chat</p>
+                    </div>
+                </div>
 
-                    <div className="mb-5">
+                {/* <div className="mb-5">
                         <label htmlFor="decksUsed" className="block mb-2 text-sm font-medium text-gray-900">Decks used per shoe</label>
                         <input
                             type="number"
@@ -62,10 +62,9 @@ export default function AdvancedCreateGameForm() {
                             placeholder="Enter number of dekcs"
                             required
                         />
-                    </div>
+                    </div> */}
 
-                </div>
-            )}
+            </div>
         </div>
     );
 }
