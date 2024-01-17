@@ -7,6 +7,7 @@ export class Hand {
     public bet: number;
     public winAmount: number | null = null;
     public playerHasDoubled: boolean = false;
+    public playerHasSplitted: boolean = false;
     public possibleActions: string[] = [];
 
     constructor(bet: number) {
@@ -34,6 +35,9 @@ export class Hand {
         let newH = new Hand(this.bet);
         newH.cards.push(this.cards.pop());
 
+        this.playerHasSplitted = true;
+        newH.playerHasSplitted = true;
+
         return newH;
     }
 
@@ -55,7 +59,7 @@ export class Hand {
     }
 
     public isBlackjackHand(): boolean {
-        if (this.cards.length != 2) return false;
+        if (this.cards.length != 2 || this.playerHasSplitted) return false;
 
         return (this.cards[0].numValue + this.cards[1].numValue) == 21;
     }
