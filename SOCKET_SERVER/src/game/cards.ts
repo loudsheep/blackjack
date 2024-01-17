@@ -73,22 +73,6 @@ export const generateRandomShoe = (game: GameData, decksUsed: number, seed: stri
         [shoe[i], shoe[j]] = [shoe[j], shoe[i]];
     }
 
-    shoe[0] = {
-        suit: "diamonds",
-        value: "10",
-        numValue: 10,
-    };
-    shoe[2] = {
-        suit: "diamonds",
-        value: "10",
-        numValue: 10,
-    };
-    shoe[4] = {
-        suit: "diamonds",
-        value: "ace",
-        numValue: 11,
-    };
-
     game.shoe.push(...shoe);
 }
 
