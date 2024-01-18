@@ -22,7 +22,7 @@ const httpServer = process.env.SOCKET_USE_HTTPS == "true" ? https.createServer({
 const io = new Server(httpServer, {
     cors: {
         // origin: "http://localhost:3000", // Replace with frontend URL - TODO
-        origin: "*", // Replace with frontend URL - TODO
+        origin: "*", // Replace with frontend URL - TODO process.env.BASE_PATH
         methods: ["GET", "POST"],
         allowedHeaders: ["my-custom-header"],
         credentials: true,
