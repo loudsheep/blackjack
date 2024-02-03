@@ -72,11 +72,7 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
         socket.emit('join_room', authData);
 
         socket.on('ping', () => {
-            console.log("PING_rec");
-            setTimeout(() => {
-                socket.emit("pong", { auth: authData });
-                console.log("PONG_send");
-            }, Math.round(Math.random() * 500) + 10);
+            socket.emit("pong", { auth: authData });
         });
 
         socket.on('new_user', (data: any) => {
