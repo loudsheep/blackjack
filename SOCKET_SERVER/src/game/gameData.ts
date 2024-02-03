@@ -1,5 +1,5 @@
 import { cardsLeftInShoe, drawCard, getDealerCards } from "./cards";
-import { Card } from "../types/CardType";
+import { Card } from "../types/types";
 import { Player, getParticipants, getPlayer, getSafePlayersData } from "./players";
 import { Hand } from "./hand";
 
