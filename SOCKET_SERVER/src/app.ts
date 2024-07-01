@@ -149,7 +149,7 @@ io.on('connection', (socket) => {
                 io.to(game.socketRoomId).emit("betting_ended");
                 startRound(game, emitEvent);
 
-            }, 8000, () => io.to(game.socketRoomId).emit('bet_timeout_started', { time: 8000 }));
+            }, Number.parseInt(process.env.BETTING_TIMEOUT), () => io.to(game.socketRoomId).emit('bet_timeout_started', { time: Number.parseInt(process.env.BETTING_TIMEOUT) }));
 
             io.to(game.socketRoomId).emit('preround_update', game.gameUpdateData());
 

@@ -187,9 +187,7 @@ export const startRound = (game: GameData, emitEvent: EmitEventFunction) => {
                 emitEvent(game.socketRoomId, "game_update", game.gameUpdateData());
                 nextPlayerOrHandTurn(game, "self_call", emitEvent);
             }
-
-
-        }, 5000);
+        }, Number.parseInt(process.env.INSURANCE_TIMEOUT));
 
         sendPlayerDataUpdate(game, emitEvent);
     } else {

@@ -11,6 +11,7 @@ import ChatWindow from './ChatWindow';
 import useChatHistory from '@/hooks/useChatHistory';
 import { ChatMessage } from '@/types/ChatMessageType';
 import BetWithChips from './BetWithChips';
+import ActionTimer from './ActionTimer';
 
 type GameTableProps = {
     gameData: any,
@@ -33,22 +34,16 @@ type GameTableProps = {
 export default function GameTable({ socket, authData, currentPlayer, settings, gameData }: GameTableProps) {
     const [showBettingOptions, setShowBettingOptions] = useState<boolean>(false);
     const [showPlayerActions, setShowPlayerActions] = useState<boolean>(false);
+    const [showInsurance, setShowInsurance] = useState<boolean>(false);
+
     const [playerActions, setPlayerActions] = useState<string[]>([]);
     const [betCountdown, setBetCountdown] = useState<number | null>(null);
     const [insuranceCountdown, setInsuranceCountdown] = useState<number | null>(null);
-    const [showInsurance, setShowInsurance] = useState<boolean>(false);
-    const [lastBet, setLastBet] = useState<number>(0);
-
-    // const [lastChatMessage, setLastChatMessage] = useState<ChatMessage | null>(null);
     const [lastMessages, setMessages, addMessage] = useChatHistory();
-
-    // const [history, setHistory, addToHistory] = useChatHistory();
-
     const [pauseRequested, setPauseRequested] = useState<boolean>(false);
 
     const placeBet = (value: number) => {
         socket.emit('place_bet', { auth: authData, bet: value });
-        setLastBet(value);
         setShowBettingOptions(false);
     };
 
@@ -246,19 +241,12 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
             )}
 
             {betCountdown !== null && (
-                <>
-                    Bets:
-                    <Countdown date={betCountdown} precision={100} key={betCountdown} className='text-white'></Countdown>
-                </>
+                <ActionTimer maxTimeMs={10 * 1000} countUntil={betCountdown} countName='betting'></ActionTimer>
             )}
 
             {insuranceCountdown !== null && (
-                <>
-                    Insurane:
-                    <Countdown date={insuranceCountdown} precision={100} key={insuranceCountdown} className='text-white'></Countdown>
-                </>
+                <ActionTimer maxTimeMs={10 * 1000} countUntil={insuranceCountdown} countName='insurance'></ActionTimer>
             )}
-
         </div>
     )
 }
