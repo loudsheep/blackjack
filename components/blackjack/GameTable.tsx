@@ -6,12 +6,11 @@ import '../styles/blackjack.css';
 import Card from '../Card';
 import { Socket } from 'socket.io-client';
 import { SocketAuth } from '@/types/SocketAuthType';
-import Image from 'next/image';
-import BetForm from '../BetForm';
 import Countdown from 'react-countdown';
 import ChatWindow from './ChatWindow';
 import useChatHistory from '@/hooks/useChatHistory';
 import { ChatMessage } from '@/types/ChatMessageType';
+import BetWithChips from './BetWithChips';
 
 type GameTableProps = {
     gameData: any,
@@ -40,7 +39,8 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
     const [showInsurance, setShowInsurance] = useState<boolean>(false);
     const [lastBet, setLastBet] = useState<number>(0);
 
-    const [lastChatMessage, setLastChatMessage] = useState<ChatMessage | null>(null);
+    // const [lastChatMessage, setLastChatMessage] = useState<ChatMessage | null>(null);
+    const [lastMessages, setMessages, addMessage] = useChatHistory();
 
     // const [history, setHistory, addToHistory] = useChatHistory();
 
@@ -118,7 +118,7 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
         });
 
         socket.on('recieve_chat_msg', (data) => {
-            setLastChatMessage(data);
+            addMessage(data);
         });
 
         return () => {
@@ -133,12 +133,7 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
 
     return (
         <div className='body'>
-
-            <div className="header">
-                <div>Game</div>
-                <div>Shop</div>
-                <div>Rules</div>
-                <div>Profile</div>
+            <div className="absolute right-0 top-0">
                 {pauseRequested && (
                     <h1 className='font-bold text-red-500'>THE GAME WILL PAUSE BEFORE THE NEXT ROUND</h1>
                 )}
@@ -147,10 +142,11 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
                     <button className="relative bg-gradient-to-b from-red-700 to-red-800 hover:from-red-800 hover:to-red-900 text-white font-bold ml-5 py-0.5 px-2 rounded-md shadow-md transition-all duration-300" style={{ border: '2px solid #440000' }} onClick={() => socket.emit('pause_game', { auth: authData })}>Pause game</button>
                 )}
             </div>
-            <div className="table">
 
+
+            <div className="table">
                 {settings.enableChat && (
-                    <ChatWindow sendMessage={sendChatMessage} lastMessage={lastChatMessage} currentUserIdentifier={currentPlayer.identifier}></ChatWindow>
+                    <ChatWindow sendMessage={sendChatMessage} lastMessages={lastMessages} currentUserIdentifier={currentPlayer.identifier}></ChatWindow>
                 )}
 
                 <div className="dealer">
@@ -246,7 +242,7 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
             )}
 
             {showBettingOptions && (
-                <BetForm minValue={settings.minBet} maxValue={Math.min(currentPlayer.stack, settings.maxBet)} startValue={Math.min(lastBet, currentPlayer.stack)} step={Math.min(10, Math.ceil(currentPlayer.stack / 10))} callback={placeBet} confirmButtonText='Place bet' className='w-1/2'></BetForm>
+                <BetWithChips userStack={currentPlayer.stack} placeBetCallback={placeBet}></BetWithChips>
             )}
 
             {betCountdown !== null && (
@@ -262,6 +258,7 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
                     <Countdown date={insuranceCountdown} precision={100} key={insuranceCountdown} className='text-white'></Countdown>
                 </>
             )}
+
         </div>
     )
 }
