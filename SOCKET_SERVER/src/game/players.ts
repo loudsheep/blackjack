@@ -1,8 +1,10 @@
 import { randomBytes } from "crypto";
-import { Card } from "../types/CardType";
+import { Card, PlayerPing } from "../types/types";
 import { GameData } from "./gameData";
 import { Hand } from "./hand";
 import { addPlayerToGameInDB } from "./gameDataManager";
+
+
 
 export type Player = {
     token: string,
@@ -18,6 +20,8 @@ export type Player = {
     hands: Hand[],
     participates?: boolean;
     isThisPlayersTurn?: boolean,
+
+    ping: PlayerPing,
 };
 
 export const addPlayerToGame = async (game: GameData, userToken: string, username: string) => {
@@ -33,6 +37,11 @@ export const addPlayerToGame = async (game: GameData, userToken: string, usernam
         stack: game.settings.startingStack,
         hands: [],
         identifier: randomBytes(10).toString("base64url"),
+        ping: {
+            pingMS: 0,
+            connected: true,
+            lastPingTime: Date.now(),
+        }
     };
 
     addPlayer(game, newUser);
@@ -95,6 +104,7 @@ export const getSafePlayersData = (game: GameData) => {
             participates: pl.participates,
             creator: pl.creator,
             insurance: pl.insurance,
+            ping: pl.ping,
         });
     }
     return result;

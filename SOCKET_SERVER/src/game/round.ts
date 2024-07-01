@@ -1,4 +1,5 @@
 import { authenticateUser, sendPlayerDataUpdate } from "../lib/auth";
+import { EmitEventFunction } from "../types/types";
 import { delay } from "../util/util";
 import { cardsLeftInShoe, dealToParticipants, drawCard, generateRandomShoe } from "./cards";
 import { GameData } from "./gameData";
@@ -6,8 +7,6 @@ import { updateGameStartedInDB } from "./gameDataManager";
 import { Hand, calculateActionsForHands } from "./hand";
 import { collectInsurance, payInsuredPlayers, playerCanInsureBet, setTimeoutForInsurance } from "./insurance";
 import { Player, getParticipants } from "./players";
-
-type EmitEventFunction = (roomId: string | string[], event: string, data: any) => void;
 
 export const resetStateBeforeNextRound = (game: GameData) => {
     game.currentRound = {

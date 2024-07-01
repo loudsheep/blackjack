@@ -3,13 +3,15 @@ import Game from "../models/game";
 import connectMongoDB from "../lib/mongodb";
 import { GameData } from "./gameData";
 import { Player, addPlayer } from "./players";
+import { standardPingCallout } from "./ping";
+import { EmitEventFunction } from "../types/types";
 
 export const createGamesObject = () => {
     let games: GameData[] = [];
     return games;
 }
 
-export const getGameData = async (games: GameData[], gameHash: string): Promise<boolean> => {
+export const getGameData = async (games: GameData[], gameHash: string, emitEvent: EmitEventFunction): Promise<boolean> => {
     if (games.find(elem => elem.hash == gameHash)) {
         return;
     }
@@ -37,9 +39,18 @@ export const getGameData = async (games: GameData[], gameHash: string): Promise<
             stack: game.settings.startingStack,
             creator: i.creator,
             hands: [],
-            identifier: randomBytes(10).toString("base64url")
+            identifier: randomBytes(10).toString("base64url"),
+            ping: {
+                pingMS: 0,
+                connected: false,
+                lastPingTime: Date.now(),
+            }
         });
     }
+
+    // if (gameData.pingForActiveHosts == null) {
+    //     gameData.pingForActiveHosts = setInterval(() => standardPingCallout(gameData, emitEvent), 10000);
+    // }
 
     games.push(gameData);
 

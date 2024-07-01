@@ -3,7 +3,7 @@ import https from "https";
 import { Server } from "socket.io";
 import dotenv from "dotenv";
 import path from "path";
-import { IncomingData } from "./types/IncomingDataType";
+import { EmitEventFunction, IncomingData } from "./types/types";
 import { createGamesObject, getGameByRoomId, getGameData, kickPlayer, updateGameStartedInDB } from "./game/gameDataManager";
 import { authenticateUser, sendPlayerDataUpdate } from "./lib/auth";
 import { cardsLeftInShoe, generateRandomShoe } from "./game/cards";
@@ -11,6 +11,7 @@ import { placeBet, setTimeoutForBetting } from "./game/bets";
 import { resetStateBeforeNextRound, respondToPlayerAction, startRound } from "./game/round";
 import { addPlayerToGame, getPlayerByIdentifier } from "./game/players";
 import { readFileSync } from "fs";
+import { handlePong } from "./game/ping";
 
 dotenv.config({ path: path.resolve(__dirname + "../../../.env") });
 
@@ -32,7 +33,7 @@ const io = new Server(httpServer, {
 let games = createGamesObject();
 
 io.on('connection', (socket) => {
-    const emitEvent = (roomId: string | string[], event: string, data: any) => {
+    const emitEvent: EmitEventFunction = (roomId, event, data) => {
         io.to(roomId).emit(event, data);
     };
 
@@ -41,7 +42,7 @@ io.on('connection', (socket) => {
         // check if game exists, if not get the game data from mongodb
         let game = getGameByRoomId(games, data.roomId);
         if (!game) {
-            await getGameData(games, data.hash);
+            await getGameData(games, data.hash, emitEvent);
         }
 
         // after getting data from db check if it's valid
@@ -229,6 +230,17 @@ io.on('connection', (socket) => {
         let msg = data.message.substring(0, 50);
 
         io.to(game.socketRoomId).emit('recieve_chat_msg', { message: msg, author: auth.playerData.identifier, authorName: auth.playerData.username, timestamp: Date.now() });
+    });
+
+    socket.on('pong', async (data) => {
+        let game = getGameByRoomId(games, data.auth.roomId);
+        let auth = authenticateUser(game, data.auth.token);
+
+        if (!auth.authenticated) {
+            return;
+        }
+
+        handlePong(auth.playerData);
     });
 
     // socket.on("disconnect", () => {

@@ -1,4 +1,4 @@
-import { Card } from "../types/CardType";
+import { Card } from "../types/types";
 import { GameData } from "./gameData";
 import { possiblePlayerHandActions } from "./round";
 

@@ -1,5 +1,5 @@
 import seedrandom from "seedrandom";
-import { Card } from "../types/CardType";
+import { Card } from "../types/types";
 import { GameData } from "./gameData";
 import { randomBytes } from "crypto";
 import { Hand } from "./hand";
