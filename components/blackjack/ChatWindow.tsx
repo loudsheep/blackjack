@@ -20,7 +20,7 @@ export default function ChatWindow(props: ChatWindowProps) {
     };
 
     return (
-        <div className='fixed top-0 left-0 w-64'>
+        <div className='fixed top-0 left-0 w-64 text-white'>
             <form className='flex' onSubmit={handleSend}>
                 <input type="text" name="" id="" value={message} onChange={(e) => setMessage(e.target.value)} className='w-3/4 bg-opacity-100 text-black' placeholder='Write a message' maxLength={50} />
                 <button>Send</button>

@@ -12,6 +12,21 @@ import useChatHistory from '@/hooks/useChatHistory';
 import { ChatMessage } from '@/types/ChatMessageType';
 import BetWithChips from './BetWithChips';
 import ActionTimer from './ActionTimer';
+import PlayerSlot from './PlayerSlot';
+import PlayerActions from './PlayerActions';
+
+
+const mapPlayeersToDisplay = (players: any) => {
+    let result = [];
+    for (let i = 0; i < 5; i++) result.push({ empty: true });
+
+    for (const player of players) {
+        result[player.tablePosition] = player;
+    }
+
+    return result;
+};
+
 
 type GameTableProps = {
     gameData: any,
@@ -59,6 +74,13 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
 
     const insureBet = () => {
         socket.emit('take_action', { auth: authData, action: "insure" })
+    };
+
+    const hanldeIncuraceAction = (action :string) => {
+        if (action == "insure bet") {
+            insureBet();
+        }
+        setShowInsurance(false)
     };
 
     useEffect(() => {
@@ -127,7 +149,7 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
     }, [socket]);
 
     return (
-        <div className='body'>
+        <div className='body select-none'>
             <div className="absolute right-0 top-0">
                 {pauseRequested && (
                     <h1 className='font-bold text-red-500'>THE GAME WILL PAUSE BEFORE THE NEXT ROUND</h1>
@@ -138,102 +160,35 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
                 )}
             </div>
 
+            {settings.enableChat && (
+                <ChatWindow sendMessage={sendChatMessage} lastMessages={lastMessages} currentUserIdentifier={currentPlayer.identifier}></ChatWindow>
+            )}
 
             <div className="table">
-                {settings.enableChat && (
-                    <ChatWindow sendMessage={sendChatMessage} lastMessages={lastMessages} currentUserIdentifier={currentPlayer.identifier}></ChatWindow>
-                )}
-
-                <div className="dealer">
-                    <div>
-                    </div>
-                    <div>
+                <div className="w-full flex flex-col justify-center items-center">
+                    <div className='flex-[1]'>
                         <p>Dealer cards - {gameData.dealerCardsSum}</p>
-                        <div className="dealer_cards">
-                            {gameData.dealerCards.map((value: any, idx: any) => (
-                                <Card suit={value.suit} value={value.value} key={idx} className='ml-1 h-full'></Card>
-                            ))}
-                        </div>
                     </div>
-                    <div className="deck">
-                        <img src={logo.src} alt="aha" />
-                        {gameData.cardsLeft} cards left
-                    </div>
-                </div>
-                <div className="players">
-                    {gameData.players.map((value: any, idx: any) => (
-                        <div key={idx}>
-                            <div className="cards mb-8">
-                                {Array.isArray(value.hands) && (
-                                    <>
-                                        {value.hands.map((hand: any, idx: any) => (
-                                            <div key={idx} className={'hand text-center rounded-md ' + (gameData.currentPlayer == value.identifier && gameData.currentHand == idx ? 'bg-red-500 bg-opacity-70' : '')}>
-                                                {hand.cards.map((card: any, idx2: any) => (
-                                                    <Card style={{ bottom: (idx2 * 20) + "px", left: (idx2 * 20) + "px" }} suit={card.suit} value={card.value} key={idx2} className={'w-32 absolute z-[' + idx2 + ']'}></Card>
-                                                ))}
-                                                <p className='text-center absolute' style={{ bottom: "-1.5rem" }}>
-                                                    {hand.handValue.filter((v: any) => v <= 21).length > 0 ? (
-                                                        <>{hand.handValue.filter((v: any) => v <= 21).join(" / ")}</>
-                                                    ) : (
-                                                        <>{hand.handValue[0]}</>
-                                                    )}
-                                                </p>
-
-                                                <p className='text-center absolute' style={{ bottom: "-3rem" }}>
-                                                    <>
-                                                        {hand.isDoubled ? (
-                                                            <>{hand.bet / 2}$ , {hand.bet / 2}$</>
-                                                        ) : (
-                                                            <>{hand.bet}$</>
-                                                        )}
-
-                                                        {hand.winAmount && (
-                                                            <>
-                                                                {hand.winAmount > 0 ? (
-                                                                    <span className='text-green-500'> +{hand.winAmount}$</span>
-                                                                ) : (
-                                                                    <span className='text-red-500'> {hand.winAmount}$</span>
-                                                                )}
-                                                            </>
-                                                        )}
-                                                    </>
-                                                </p>
-                                            </div>
-                                        ))}
-                                    </>
-                                )}
-                            </div>
-
-                            <div><p>{value.username}</p></div>
-                            S: {value.stack}
-                            {value.insurance > 0 && (
-                                <p>Insurance: {value.insurance}</p>
-                            )}
-                            {(value.participates === false) && (
-                                <p className='font-bold text-red-400'>PLAYER DOES NOT PARTICIPATE</p>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {showPlayerActions && (
-                <div className="lover_table">
-                    <div className="action_buttons_space">
-                        {playerActions.map((action, idx) => (
-                            <button key={idx} onClick={() => takeAction(action)}>{action.toUpperCase()}</button>
+                    <div className="flex-[9] w-full flex justify-center items-center">
+                        {gameData.dealerCards.map((value: any, idx: any) => (
+                            <Card suit={value.suit} value={value.value} key={idx} className='ml-1 h-[190px]'></Card>
                         ))}
                     </div>
                 </div>
+
+                <div className='absolute w-full flex flex-row-reverse left-0 top-[50%]'>
+                    {mapPlayeersToDisplay(gameData.players).map((value: any, idx: number) => (
+                        <PlayerSlot key={idx} playerData={value} currentHand={gameData.currentHand} currentPlayer={gameData.currentPlayer}></PlayerSlot>
+                    ))}
+                </div>
+            </div>
+            
+            {showPlayerActions && (
+                <PlayerActions actions={playerActions} actionCallback={takeAction}></PlayerActions>
             )}
 
             {showInsurance && (
-                <div className="lover_table">
-                    <div className="action_buttons_space">
-                        <button onClick={() => insureBet()}>Insure Bet</button>
-                        <button onClick={() => setShowInsurance(false)}>X</button>
-                    </div>
-                </div>
+                <PlayerActions actions={["insure bet", "x"]} actionCallback={hanldeIncuraceAction}></PlayerActions>
             )}
 
             {showBettingOptions && (

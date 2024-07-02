@@ -134,6 +134,7 @@ io.on('connection', (socket) => {
             socket.disconnect();
             return;
         }
+        
         if (data.bet > auth.playerData.stack) {
             return;
         }

@@ -11,8 +11,6 @@ export const placeBet = (game: GameData, amount: number, token: string): boolean
     if (player.stack < game.settings.minBet) return false;
     // if (player.ping.connected != true) return false;
 
-    amount = Math.min(amount, game.settings.maxBet);
-
     player.cards = [];
     player.roundBet = amount;
     player.stack -= amount;

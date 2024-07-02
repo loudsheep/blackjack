@@ -20,14 +20,6 @@ type BlackjacjGameProps = {
     },
 };
 
-type NewUserType = {
-    token: string,
-    creator: boolean,
-    username: string,
-    stack: number,
-    tablePosition: number,
-};
-
 export default function BlackjackGame(props: BlackjacjGameProps) {
     const [showWaitingForGameToStart, setShowWaitingForGameToStart] = useState<boolean>(true);
     const [gameData, setGameData] = useState<any>({});

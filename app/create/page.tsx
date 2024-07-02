@@ -34,8 +34,6 @@ export default async function CreatePage() {
 
         const rawFormData = {
             startingStack: formData.get('startingStack'),
-            minBet: formData.get('minBet'),
-            maxBet: formData.get('maxBet'),
             enableChat: formData.get('enableChat'),
         }
 
@@ -43,8 +41,6 @@ export default async function CreatePage() {
             method: "POST",
             body: JSON.stringify({
                 startingStack: rawFormData.startingStack,
-                minBet: rawFormData.minBet,
-                maxBet: rawFormData.maxBet,
                 enableChat: rawFormData.enableChat ? true : false,
                 username,
                 token: user_token?.value,
@@ -73,28 +69,6 @@ export default async function CreatePage() {
                             name="startingStack"
                             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                             placeholder="Enter starting stack"
-                            required
-                        />
-                    </div>
-                    <div className="mb-5">
-                        <label htmlFor="minBet" className="block mb-2 text-sm font-medium text-gray-900">Min Bet</label>
-                        <input
-                            type="number"
-                            id="minBet"
-                            name="minBet"
-                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                            placeholder="Enter minimum bet"
-                            required
-                        />
-                    </div>
-                    <div className="mb-5">
-                        <label htmlFor="maxBet" className="block mb-2 text-sm font-medium text-gray-900">Max Bet</label>
-                        <input
-                            type="number"
-                            id="maxBet"
-                            name="maxBet"
-                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                            placeholder="Enter maximum bet"
                             required
                         />
                     </div>

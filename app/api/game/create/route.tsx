@@ -33,8 +33,7 @@ export const POST = async (request: NextRequest) => {
             ],
             settings: {
                 startingStack,
-                minBet,
-                maxBet,
+                minBet: 1,
                 enableChat,
             }
         });

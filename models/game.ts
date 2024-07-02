@@ -51,11 +51,7 @@ const GameSchema = new mongoose.Schema(
             },
             minBet: {
                 type: Number,
-                required: true,
-            },
-            maxBet: {
-                type: Number,
-                required: true,
+                required: false,
             },
             enableChat: {
                 type: Boolean,
