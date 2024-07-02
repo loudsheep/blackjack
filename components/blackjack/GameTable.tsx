@@ -101,7 +101,6 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
         });
 
         socket.on('action_timeout_started', (data) => {
-            console.log("SET ACTION TIMEOUT");
             setActionTimeout(null);
             setActionTimeout(Date.now() + data.time);
         });

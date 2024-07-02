@@ -33,14 +33,10 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
 
     const updateGameState = (data: any) => {
         setShowWaitingForGameToStart(!data.gameStarted);
-
         setGameData(data);
-        console.log(data);
-
 
         for (const player of data.players) {
             if (player.token == authData.token) {
-                console.log(player.stack);
 
                 setCurrentPlayer(player);
             }

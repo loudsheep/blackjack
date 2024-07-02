@@ -8,7 +8,6 @@ export default function AdvancedCreateGameForm() {
 
     // Function to toggle the accordion
     const toggleAccordion = () => {
-        console.log(!isAccordionOpen);
         setIsAccordionOpen(prevState => !prevState);
     };
 
