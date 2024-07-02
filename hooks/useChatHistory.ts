@@ -1,16 +1,28 @@
 import { ChatMessage } from '@/types/ChatMessageType';
 import { useState, Dispatch, SetStateAction } from 'react';
 
-type UseChatHistoryReturnType = [ChatMessage[], Dispatch<SetStateAction<ChatMessage[]>>, (message: ChatMessage) => void];
+const useChatHistory = () => {
+    const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
 
-function useChatHistory(): UseChatHistoryReturnType {
-    const [history, setHistory] = useState<ChatMessage[]>([]);
-
-    const addToHistory = (message: ChatMessage) => {
-        setHistory([...history, message]);
+    const addMessage = (newMessage: ChatMessage) => {
+        setChatHistory(prevChatHistory => {
+            const updatedChatHistory = [...prevChatHistory, newMessage];
+            if (updatedChatHistory.length > 5) {
+                updatedChatHistory.shift(); // Remove the oldest message
+            }
+            return updatedChatHistory;
+        });
     };
 
-    return [history, setHistory, addToHistory];
-}
+    const clearChat = () => {
+        setChatHistory([]);
+    };
+
+    return {
+        chatHistory,
+        addMessage,
+        clearChat,
+    };
+};
 
 export default useChatHistory;

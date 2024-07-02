@@ -43,13 +43,13 @@ export class GameData {
     // timeouts
     public betsClosedTimeout: any = null;
     public betsClosedTimeoutStartTime: number | null = null;
-    public pingForActiveHosts: any = null;
-
-    // TODO
     public playerActionTimeout: any = null;
-
+    public playerActionTimeoutStartTime: number | null = null;
     public insuranceTimeout: any = null;
     public insuranceTimeoutStartTime: number | null = null;
+    
+    public pingForActiveHosts: any = null;
+    public lastActive: number;
 
     constructor(
         socketRoomId: string,
@@ -67,9 +67,13 @@ export class GameData {
         this.players = players;
         this.settings = settings;
         this.bannedPlayers = bannedPlayers;
+
+        this.lastActive = Date.now();
     }
 
     public gameUpdateData() {
+        this.lastActive = Date.now();
+
         let obj: { [k: string]: any } = {
             players: getSafePlayersData(this),
             gameStarted: this.gameStarted,

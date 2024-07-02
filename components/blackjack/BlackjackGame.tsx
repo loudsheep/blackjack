@@ -20,14 +20,6 @@ type BlackjacjGameProps = {
     },
 };
 
-type NewUserType = {
-    token: string,
-    creator: boolean,
-    username: string,
-    stack: number,
-    tablePosition: number,
-};
-
 export default function BlackjackGame(props: BlackjacjGameProps) {
     const [showWaitingForGameToStart, setShowWaitingForGameToStart] = useState<boolean>(true);
     const [gameData, setGameData] = useState<any>({});
@@ -40,18 +32,11 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
     };
 
     const updateGameState = (data: any) => {
-        // setPlayers(data.players);
         setShowWaitingForGameToStart(!data.gameStarted);
-        // setDealerCards(data.dealerCards);
-        // setDealerCardsSum(data.dealerCardsSum);
-
         setGameData(data);
-        console.log(data);
-
 
         for (const player of data.players) {
             if (player.token == authData.token) {
-                console.log(player.stack);
 
                 setCurrentPlayer(player);
             }
@@ -76,8 +61,6 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
         });
 
         socket.on('new_user', (data: any) => {
-            console.log(data);
-
             updateGameState(data);
         });
 
@@ -91,13 +74,11 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
         });
 
         socket.on('preround_update', (data) => {
-            console.log("PRE-UPDATE", data);
             updateGameState(data);
             // setCardsLeftInShoe(data.cardsLeft);
         });
 
         socket.on('game_update', (data) => {
-            console.log("GAME-UPDATE", data);
             updateGameState(data);
             // setCardsLeftInShoe(data.cardsLeft);
         });

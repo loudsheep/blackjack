@@ -32,7 +32,7 @@ export const addPlayerToGame = async (game: GameData, userToken: string, usernam
     let newUser = {
         token: userToken,
         username: username,
-        tablePosition: game.players.length + 1,
+        tablePosition: game.players.length,
         creator: false,
         stack: game.settings.startingStack,
         hands: [],

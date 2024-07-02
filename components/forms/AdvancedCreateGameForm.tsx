@@ -8,7 +8,6 @@ export default function AdvancedCreateGameForm() {
 
     // Function to toggle the accordion
     const toggleAccordion = () => {
-        console.log(!isAccordionOpen);
         setIsAccordionOpen(prevState => !prevState);
     };
 
@@ -48,22 +47,6 @@ export default function AdvancedCreateGameForm() {
                         <p id="enableChat-text" className="text-xs font-normal text-gray-500">Allows players to use in-game realtime chat</p>
                     </div>
                 </div>
-
-                {/* <div className="mb-5">
-                        <label htmlFor="decksUsed" className="block mb-2 text-sm font-medium text-gray-900">Decks used per shoe</label>
-                        <input
-                            type="number"
-                            min={1}
-                            max={10}
-                            defaultValue={6}
-                            id="decksUsed"
-                            name="decksUsed"
-                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                            placeholder="Enter number of dekcs"
-                            required
-                        />
-                    </div> */}
-
             </div>
         </div>
     );

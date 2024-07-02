@@ -85,8 +85,6 @@ export default async function GamePage({ params }: GamePageProps) {
     }
     // TODO join game via route /game/join
     let settings = {
-        minBet: game.settings.minBet,
-        maxBet: game.settings.maxBet,
         startingStack: game.settings.startingStack,
         // enableChat: game.
     }

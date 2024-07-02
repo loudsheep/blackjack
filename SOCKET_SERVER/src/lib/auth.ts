@@ -1,3 +1,4 @@
+import { timeLeftForAction } from "../game/actions";
 import { timeLeftForBetting } from "../game/bets";
 import { GameData } from "../game/gameData";
 import { playerCanInsureBet, timeLeftForInsurance } from "../game/insurance";
@@ -49,7 +50,7 @@ export const sendPlayerDataUpdate = (game: GameData, socketEmit: (roomId: string
         if (game.currentRound.currentPlayerIndex == undefined) continue;
 
         if (game.currentRound.participants[game.currentRound.currentPlayerIndex]?.token == player.token) {
-            socketEmit(player.token, 'my_turn', { type: "cardAction", actions: possiblePlayerHandActions(game, player, game.currentRound.currentPlayerHandIndex), hand: game.currentRound.cardsLeftAfter, time: 10000 });
+            socketEmit(player.token, 'my_turn', { type: "cardAction", actions: possiblePlayerHandActions(game, player, game.currentRound.currentPlayerHandIndex), hand: game.currentRound.cardsLeftAfter, time: timeLeftForAction(game) });
         }
     }
 }

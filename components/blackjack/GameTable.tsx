@@ -6,12 +6,29 @@ import '../styles/blackjack.css';
 import Card from '../Card';
 import { Socket } from 'socket.io-client';
 import { SocketAuth } from '@/types/SocketAuthType';
-import Image from 'next/image';
-import BetForm from '../BetForm';
 import Countdown from 'react-countdown';
 import ChatWindow from './ChatWindow';
 import useChatHistory from '@/hooks/useChatHistory';
 import { ChatMessage } from '@/types/ChatMessageType';
+import BetWithChips from './BetWithChips';
+import ActionTimer from './ActionTimer';
+import PlayerSlot from './PlayerSlot';
+import PlayerActions from './PlayerActions';
+
+
+const mapPlayersToDisplay = (players: any) => {
+    let result = [];
+    for (let i = 0; i < 5; i++) result.push({ empty: true });
+
+    for (const player of players) {
+        if (player.tablePosition >= 0 && player.tablePosition < result.length) {
+            result[player.tablePosition] = player;
+        }
+    }
+
+    return result;
+};
+
 
 type GameTableProps = {
     gameData: any,
@@ -34,22 +51,20 @@ type GameTableProps = {
 export default function GameTable({ socket, authData, currentPlayer, settings, gameData }: GameTableProps) {
     const [showBettingOptions, setShowBettingOptions] = useState<boolean>(false);
     const [showPlayerActions, setShowPlayerActions] = useState<boolean>(false);
+    const [showInsurance, setShowInsurance] = useState<boolean>(false);
+
     const [playerActions, setPlayerActions] = useState<string[]>([]);
     const [betCountdown, setBetCountdown] = useState<number | null>(null);
     const [insuranceCountdown, setInsuranceCountdown] = useState<number | null>(null);
-    const [showInsurance, setShowInsurance] = useState<boolean>(false);
-    const [lastBet, setLastBet] = useState<number>(0);
-
-    const [lastChatMessage, setLastChatMessage] = useState<ChatMessage | null>(null);
-
-    // const [history, setHistory, addToHistory] = useChatHistory();
-
+    const [actionTimeout, setActionTimeout] = useState<number | null>(null);
+    const { chatHistory, addMessage } = useChatHistory();
     const [pauseRequested, setPauseRequested] = useState<boolean>(false);
 
     const placeBet = (value: number) => {
-        socket.emit('place_bet', { auth: authData, bet: value });
-        setLastBet(value);
-        setShowBettingOptions(false);
+        if (value > 0) {
+            socket.emit('place_bet', { auth: authData, bet: value });
+            setShowBettingOptions(false);
+        }
     };
 
     const takeAction = (action: string) => {
@@ -66,27 +81,33 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
         socket.emit('take_action', { auth: authData, action: "insure" })
     };
 
+    const hanldeIncuraceAction = (action: string) => {
+        if (action == "insure bet") {
+            insureBet();
+        }
+        setShowInsurance(false)
+    };
+
     useEffect(() => {
         socket.on('hand_starting', (data) => {
-            console.log(data, "STARTING");
-
             // setShowBettingOptions(true);
         });
 
         socket.on('betting_ended', () => {
             setShowBettingOptions(false);
             setBetCountdown(null);
-            console.log("BET END");
         });
 
         socket.on('bet_timeout_started', (data) => {
             setBetCountdown(Date.now() + data.time);
-            console.log("TIMEOUT START");
+        });
+
+        socket.on('action_timeout_started', (data) => {
+            setActionTimeout(null);
+            setActionTimeout(Date.now() + data.time);
         });
 
         socket.on('my_turn', (data) => {
-            console.log("MY TURN", data);
-
             if (data.type == "bet") {
                 if (data.time) setBetCountdown(Date.now() + data.time);
                 setShowBettingOptions(true);
@@ -100,6 +121,7 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
             } else if (data.type == "cardAction") {
                 setShowPlayerActions(true);
                 setPlayerActions(data.actions);
+                if (data.time) setActionTimeout(Date.now() + data.time);
             }
         });
 
@@ -109,8 +131,7 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
             setBetCountdown(null);
             setShowInsurance(false);
             setInsuranceCountdown(null);
-
-            console.log("TURN FINISHED");
+            setActionTimeout(null);
         });
 
         socket.on('pause_request', (data) => {
@@ -118,7 +139,9 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
         });
 
         socket.on('recieve_chat_msg', (data) => {
-            setLastChatMessage(data);
+            console.log("RECIEVE");
+
+            addMessage(data);
         });
 
         return () => {
@@ -128,17 +151,13 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
             socket.off('my_turn');
             socket.off('my_turn_finished');
             socket.off('pause_requested');
+            socket.off('recieve_chat_msg');
         };
     }, [socket]);
 
     return (
-        <div className='body'>
-
-            <div className="header">
-                <div>Game</div>
-                <div>Shop</div>
-                <div>Rules</div>
-                <div>Profile</div>
+        <div className='body select-none'>
+            <div className="absolute right-0 top-0">
                 {pauseRequested && (
                     <h1 className='font-bold text-red-500'>THE GAME WILL PAUSE BEFORE THE NEXT ROUND</h1>
                 )}
@@ -147,120 +166,58 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
                     <button className="relative bg-gradient-to-b from-red-700 to-red-800 hover:from-red-800 hover:to-red-900 text-white font-bold ml-5 py-0.5 px-2 rounded-md shadow-md transition-all duration-300" style={{ border: '2px solid #440000' }} onClick={() => socket.emit('pause_game', { auth: authData })}>Pause game</button>
                 )}
             </div>
+
+            {settings.enableChat && (
+                <ChatWindow sendMessage={sendChatMessage} lastMessages={chatHistory} currentUserIdentifier={currentPlayer.identifier}></ChatWindow>
+            )}
+
             <div className="table">
-
-                {settings.enableChat && (
-                    <ChatWindow sendMessage={sendChatMessage} lastMessage={lastChatMessage} currentUserIdentifier={currentPlayer.identifier}></ChatWindow>
-                )}
-
-                <div className="dealer">
-                    <div>
-                    </div>
-                    <div>
+                <div className="w-full flex flex-col justify-center items-center">
+                    <div className='flex-[1]'>
                         <p>Dealer cards - {gameData.dealerCardsSum}</p>
-                        <div className="dealer_cards">
-                            {gameData.dealerCards.map((value: any, idx: any) => (
-                                <Card suit={value.suit} value={value.value} key={idx} className='ml-1 h-full'></Card>
-                            ))}
-                        </div>
                     </div>
-                    <div className="deck">
-                        <img src={logo.src} alt="aha" />
-                        {gameData.cardsLeft} cards left
+                    {gameData.dealerCards.length == 0 && (
+                        <div className='flex'>
+                            <div className='h-[190px] aspect-[5/7] border-2 border-yellow-400 rounded-lg flex justify-center items-center flex-col text-2xl font-bold text-yellow-400 text-opacity-20 uppercase mx-1'></div>
+                            <div className='h-[190px] aspect-[5/7] border-2 border-yellow-400 rounded-lg flex justify-center items-center flex-col text-2xl font-bold text-yellow-400 text-opacity-20 uppercase mx-1'></div>
+                        </div>
+                    )}
+                    <div className="flex-[9] w-full flex justify-center items-center">
+                        {gameData.dealerCards.map((value: any, idx: any) => (
+                            <Card suit={value.suit} value={value.value} key={idx} className='ml-1 h-[190px]'></Card>
+                        ))}
                     </div>
                 </div>
-                <div className="players">
-                    {gameData.players.map((value: any, idx: any) => (
-                        <div key={idx}>
-                            <div className="cards mb-8">
-                                {Array.isArray(value.hands) && (
-                                    <>
-                                        {value.hands.map((hand: any, idx: any) => (
-                                            <div key={idx} className={'hand text-center rounded-md ' + (gameData.currentPlayer == value.identifier && gameData.currentHand == idx ? 'bg-red-500 bg-opacity-70' : '')}>
-                                                {hand.cards.map((card: any, idx2: any) => (
-                                                    <Card style={{ bottom: (idx2 * 20) + "px", left: (idx2 * 20) + "px" }} suit={card.suit} value={card.value} key={idx2} className={'w-32 absolute z-[' + idx2 + ']'}></Card>
-                                                ))}
-                                                <p className='text-center absolute' style={{ bottom: "-1.5rem" }}>
-                                                    {hand.handValue.filter((v: any) => v <= 21).length > 0 ? (
-                                                        <>{hand.handValue.filter((v: any) => v <= 21).join(" / ")}</>
-                                                    ) : (
-                                                        <>{hand.handValue[0]}</>
-                                                    )}
-                                                </p>
 
-                                                <p className='text-center absolute' style={{ bottom: "-3rem" }}>
-                                                    <>
-                                                        {hand.isDoubled ? (
-                                                            <>{hand.bet / 2}$ , {hand.bet / 2}$</>
-                                                        ) : (
-                                                            <>{hand.bet}$</>
-                                                        )}
-
-                                                        {hand.winAmount && (
-                                                            <>
-                                                                {hand.winAmount > 0 ? (
-                                                                    <span className='text-green-500'> +{hand.winAmount}$</span>
-                                                                ) : (
-                                                                    <span className='text-red-500'> {hand.winAmount}$</span>
-                                                                )}
-                                                            </>
-                                                        )}
-                                                    </>
-                                                </p>
-                                            </div>
-                                        ))}
-                                    </>
-                                )}
-                            </div>
-
-                            <div><p>{value.username}</p></div>
-                            S: {value.stack}
-                            {value.insurance > 0 && (
-                                <p>Insurance: {value.insurance}</p>
-                            )}
-                            {(value.participates === false) && (
-                                <p className='font-bold text-red-400'>PLAYER DOES NOT PARTICIPATE</p>
-                            )}
-                        </div>
+                <div className='absolute w-full flex flex-row-reverse left-0 top-[50%]'>
+                    {mapPlayersToDisplay(gameData.players).map((value: any, idx: number) => (
+                        <PlayerSlot key={idx} playerData={value} currentHand={gameData.currentHand} currentPlayer={gameData.currentPlayer}></PlayerSlot>
                     ))}
                 </div>
             </div>
 
             {showPlayerActions && (
-                <div className="lover_table">
-                    <div className="action_buttons_space">
-                        {playerActions.map((action, idx) => (
-                            <button key={idx} onClick={() => takeAction(action)}>{action.toUpperCase()}</button>
-                        ))}
-                    </div>
-                </div>
+                <PlayerActions actions={playerActions} actionCallback={takeAction}></PlayerActions>
             )}
 
             {showInsurance && (
-                <div className="lover_table">
-                    <div className="action_buttons_space">
-                        <button onClick={() => insureBet()}>Insure Bet</button>
-                        <button onClick={() => setShowInsurance(false)}>X</button>
-                    </div>
-                </div>
+                <PlayerActions actions={["insure bet", "x"]} actionCallback={hanldeIncuraceAction}></PlayerActions>
             )}
 
             {showBettingOptions && (
-                <BetForm minValue={settings.minBet} maxValue={Math.min(currentPlayer.stack, settings.maxBet)} startValue={Math.min(lastBet, currentPlayer.stack)} step={Math.min(10, Math.ceil(currentPlayer.stack / 10))} callback={placeBet} confirmButtonText='Place bet' className='w-1/2'></BetForm>
+                <BetWithChips userStack={currentPlayer.stack} placeBetCallback={placeBet}></BetWithChips>
             )}
 
             {betCountdown !== null && (
-                <>
-                    Bets:
-                    <Countdown date={betCountdown} precision={100} key={betCountdown} className='text-white'></Countdown>
-                </>
+                <ActionTimer maxTimeMs={10 * 1000} countUntil={betCountdown} countName='betting'></ActionTimer>
             )}
 
             {insuranceCountdown !== null && (
-                <>
-                    Insurane:
-                    <Countdown date={insuranceCountdown} precision={100} key={insuranceCountdown} className='text-white'></Countdown>
-                </>
+                <ActionTimer maxTimeMs={10 * 1000} countUntil={insuranceCountdown} countName='insurance'></ActionTimer>
+            )}
+
+            {actionTimeout !== null && (
+                <ActionTimer maxTimeMs={10 * 1000} countUntil={actionTimeout} countName='action' key={actionTimeout}></ActionTimer>
             )}
         </div>
     )
