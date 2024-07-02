@@ -43,14 +43,12 @@ export class GameData {
     // timeouts
     public betsClosedTimeout: any = null;
     public betsClosedTimeoutStartTime: number | null = null;
-    public pingForActiveHosts: any = null;
-
-    // TODO
     public playerActionTimeout: any = null;
-
+    public playerActionTimeoutStartTime: number | null = null;
     public insuranceTimeout: any = null;
     public insuranceTimeoutStartTime: number | null = null;
-
+    
+    public pingForActiveHosts: any = null;
     public lastActive: number;
 
     constructor(

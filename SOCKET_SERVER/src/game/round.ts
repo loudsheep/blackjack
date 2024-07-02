@@ -1,6 +1,7 @@
 import { authenticateUser, sendPlayerDataUpdate } from "../lib/auth";
 import { EmitEventFunction } from "../types/types";
 import { delay } from "../util/util";
+import { clearPlayerActionTimeout, setTimeoutForAction } from "./actions";
 import { cardsLeftInShoe, dealToParticipants, drawCard, generateRandomShoe } from "./cards";
 import { GameData } from "./gameData";
 import { updateGameStartedInDB } from "./gameDataManager";
@@ -195,6 +196,15 @@ export const startRound = (game: GameData, emitEvent: EmitEventFunction) => {
         game.currentRound.currentPlayerIndex = 0;
         game.currentRound.currentPlayerHandIndex = 0;
 
+        clearPlayerActionTimeout(game);
+        setTimeoutForAction(game, () => {
+            if (game.playerActionTimeout) {
+                respondToPlayerAction(game, { action: "stand", auth: { token: participants[0].token } }, emitEvent)
+            }
+        }, 10_000, () => {
+            emitEvent(participants[0].token, "action_timeout_started", { time: 10000 });
+        });
+
         nextPlayerOrHandTurn(game, "self_call", emitEvent);
     }
 
@@ -214,6 +224,11 @@ export const nextPlayerOrHandTurn = (game: GameData, lastAction: any, emitEvent:
 
     // player didn't stand and has more actions on this hand, allow him to take another action
     if (lastAction != "stand" && possibleActions.length > 0) {
+        clearPlayerActionTimeout(game);
+        setTimeoutForAction(game, () => respondToPlayerAction(game, { action: "stand", auth: { token: currentPlayer.token } }, emitEvent), 10_000, () => {
+            emitEvent(currentPlayer.token, "action_timeout_started", { time: 10000 });
+        });
+
         sendPlayerDataUpdate(game, emitEvent);
         return;
     }
@@ -222,6 +237,10 @@ export const nextPlayerOrHandTurn = (game: GameData, lastAction: any, emitEvent:
     if (game.currentRound.currentPlayerHandIndex < currentPlayer.hands.length - 1) {
         game.currentRound.currentPlayerHandIndex++;
 
+        clearPlayerActionTimeout(game);
+        setTimeoutForAction(game, () => respondToPlayerAction(game, { action: "stand", auth: { token: currentPlayer.token } }, emitEvent), 10_000, () => {
+            emitEvent(currentPlayer.token, "action_timeout_started", { time: 10000 });
+        });
         emitEvent(game.socketRoomId, "game_update", game.gameUpdateData());
         nextPlayerOrHandTurn(game, "self_call", emitEvent);
         return;
@@ -231,6 +250,11 @@ export const nextPlayerOrHandTurn = (game: GameData, lastAction: any, emitEvent:
     if (game.currentRound.currentPlayerIndex < game.currentRound.participants.length - 1) {
         game.currentRound.currentPlayerIndex++;
         game.currentRound.currentPlayerHandIndex = 0;
+
+        clearPlayerActionTimeout(game);
+        setTimeoutForAction(game, () => respondToPlayerAction(game, { action: "stand", auth: { token: currentPlayer.token } }, emitEvent), 10_000, () => {
+            emitEvent(currentPlayer.token, "action_timeout_started", { time: 10000 });
+        });
 
         emitEvent(game.socketRoomId, "game_update", game.gameUpdateData());
         nextPlayerOrHandTurn(game, "self_call", emitEvent);
@@ -245,6 +269,8 @@ export const nextPlayerOrHandTurn = (game: GameData, lastAction: any, emitEvent:
 export const respondToPlayerAction = async (game: GameData, data: any, emitEvent: EmitEventFunction) => {
     let currentPlayer = game.currentRound.participants[game.currentRound.currentPlayerIndex];
     let authPlayer = authenticateUser(game, data.auth.token).playerData;
+
+    clearPlayerActionTimeout(game);
 
     // handle insurance
     if (data.action == "insure") {

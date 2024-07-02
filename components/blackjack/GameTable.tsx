@@ -56,6 +56,7 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
     const [playerActions, setPlayerActions] = useState<string[]>([]);
     const [betCountdown, setBetCountdown] = useState<number | null>(null);
     const [insuranceCountdown, setInsuranceCountdown] = useState<number | null>(null);
+    const [actionTimeout, setActionTimeout] = useState<number | null>(null);
     const [lastMessages, setMessages, addMessage] = useChatHistory();
     const [pauseRequested, setPauseRequested] = useState<boolean>(false);
 
@@ -87,25 +88,25 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
 
     useEffect(() => {
         socket.on('hand_starting', (data) => {
-            console.log(data, "STARTING");
-
             // setShowBettingOptions(true);
         });
 
         socket.on('betting_ended', () => {
             setShowBettingOptions(false);
             setBetCountdown(null);
-            console.log("BET END");
         });
 
         socket.on('bet_timeout_started', (data) => {
             setBetCountdown(Date.now() + data.time);
-            console.log("TIMEOUT START");
+        });
+
+        socket.on('action_timeout_started', (data) => {
+            console.log("SET ACTION TIMEOUT");
+            setActionTimeout(null);
+            setActionTimeout(Date.now() + data.time);
         });
 
         socket.on('my_turn', (data) => {
-            console.log("MY TURN", data);
-
             if (data.type == "bet") {
                 if (data.time) setBetCountdown(Date.now() + data.time);
                 setShowBettingOptions(true);
@@ -119,6 +120,7 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
             } else if (data.type == "cardAction") {
                 setShowPlayerActions(true);
                 setPlayerActions(data.actions);
+                if (data.time) setActionTimeout(Date.now() + data.time);
             }
         });
 
@@ -128,8 +130,7 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
             setBetCountdown(null);
             setShowInsurance(false);
             setInsuranceCountdown(null);
-
-            console.log("TURN FINISHED");
+            setActionTimeout(null);
         });
 
         socket.on('pause_request', (data) => {
@@ -209,6 +210,10 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
 
             {insuranceCountdown !== null && (
                 <ActionTimer maxTimeMs={10 * 1000} countUntil={insuranceCountdown} countName='insurance'></ActionTimer>
+            )}
+
+            {actionTimeout !== null && (
+                <ActionTimer maxTimeMs={10 * 1000} countUntil={actionTimeout} countName='action' key={actionTimeout}></ActionTimer>
             )}
         </div>
     )

@@ -65,8 +65,6 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
         });
 
         socket.on('new_user', (data: any) => {
-            console.log(data);
-
             updateGameState(data);
         });
 
@@ -80,13 +78,11 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
         });
 
         socket.on('preround_update', (data) => {
-            console.log("PRE-UPDATE", data);
             updateGameState(data);
             // setCardsLeftInShoe(data.cardsLeft);
         });
 
         socket.on('game_update', (data) => {
-            console.log("GAME-UPDATE", data);
             updateGameState(data);
             // setCardsLeftInShoe(data.cardsLeft);
         });
