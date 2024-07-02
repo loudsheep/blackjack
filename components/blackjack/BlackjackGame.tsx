@@ -32,10 +32,7 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
     };
 
     const updateGameState = (data: any) => {
-        // setPlayers(data.players);
         setShowWaitingForGameToStart(!data.gameStarted);
-        // setDealerCards(data.dealerCards);
-        // setDealerCardsSum(data.dealerCardsSum);
 
         setGameData(data);
         console.log(data);

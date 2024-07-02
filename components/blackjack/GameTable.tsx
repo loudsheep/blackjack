@@ -16,12 +16,14 @@ import PlayerSlot from './PlayerSlot';
 import PlayerActions from './PlayerActions';
 
 
-const mapPlayeersToDisplay = (players: any) => {
+const mapPlayersToDisplay = (players: any) => {
     let result = [];
     for (let i = 0; i < 5; i++) result.push({ empty: true });
 
     for (const player of players) {
-        result[player.tablePosition] = player;
+        if (player.tablePosition >= 0 && player.tablePosition < result.length) {
+            result[player.tablePosition] = player;
+        }
     }
 
     return result;
@@ -76,7 +78,7 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
         socket.emit('take_action', { auth: authData, action: "insure" })
     };
 
-    const hanldeIncuraceAction = (action :string) => {
+    const hanldeIncuraceAction = (action: string) => {
         if (action == "insure bet") {
             insureBet();
         }
@@ -177,12 +179,12 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
                 </div>
 
                 <div className='absolute w-full flex flex-row-reverse left-0 top-[50%]'>
-                    {mapPlayeersToDisplay(gameData.players).map((value: any, idx: number) => (
+                    {mapPlayersToDisplay(gameData.players).map((value: any, idx: number) => (
                         <PlayerSlot key={idx} playerData={value} currentHand={gameData.currentHand} currentPlayer={gameData.currentPlayer}></PlayerSlot>
                     ))}
                 </div>
             </div>
-            
+
             {showPlayerActions && (
                 <PlayerActions actions={playerActions} actionCallback={takeAction}></PlayerActions>
             )}
