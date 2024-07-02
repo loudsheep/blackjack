@@ -171,6 +171,12 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
                     <div className='flex-[1]'>
                         <p>Dealer cards - {gameData.dealerCardsSum}</p>
                     </div>
+                    {gameData.dealerCards.length == 0 && (
+                        <div className='flex'>
+                            <div className='h-[190px] aspect-[5/7] border-2 border-yellow-400 rounded-lg flex justify-center items-center flex-col text-2xl font-bold text-yellow-400 text-opacity-20 uppercase mx-1'></div>
+                            <div className='h-[190px] aspect-[5/7] border-2 border-yellow-400 rounded-lg flex justify-center items-center flex-col text-2xl font-bold text-yellow-400 text-opacity-20 uppercase mx-1'></div>
+                        </div>
+                    )}
                     <div className="flex-[9] w-full flex justify-center items-center">
                         {gameData.dealerCards.map((value: any, idx: any) => (
                             <Card suit={value.suit} value={value.value} key={idx} className='ml-1 h-[190px]'></Card>

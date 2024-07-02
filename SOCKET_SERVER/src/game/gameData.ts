@@ -51,6 +51,8 @@ export class GameData {
     public insuranceTimeout: any = null;
     public insuranceTimeoutStartTime: number | null = null;
 
+    public lastActive: number;
+
     constructor(
         socketRoomId: string,
         hash: string,
@@ -67,9 +69,13 @@ export class GameData {
         this.players = players;
         this.settings = settings;
         this.bannedPlayers = bannedPlayers;
+
+        this.lastActive = Date.now();
     }
 
     public gameUpdateData() {
+        this.lastActive = Date.now();
+
         let obj: { [k: string]: any } = {
             players: getSafePlayersData(this),
             gameStarted: this.gameStarted,

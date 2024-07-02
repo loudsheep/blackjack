@@ -11,8 +11,8 @@ export const createGamesObject = () => {
     return games;
 }
 
-export const getGameData = async (games: GameData[], gameHash: string, emitEvent: EmitEventFunction): Promise<boolean> => {
-    if (games.find(elem => elem.hash == gameHash)) {
+export const getGameData = async (games: GameData[], gameHash: string, roomId: string): Promise<boolean> => {
+    if (games.find(elem => elem.hash == gameHash || elem.socketRoomId == roomId)) {
         return;
     }
 

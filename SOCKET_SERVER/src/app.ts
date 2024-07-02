@@ -12,6 +12,7 @@ import { resetStateBeforeNextRound, respondToPlayerAction, startRound } from "./
 import { addPlayerToGame, getPlayerByIdentifier } from "./game/players";
 import { readFileSync } from "fs";
 import { handlePong } from "./game/ping";
+import { cleanInactiveGames } from "./util/util";
 
 dotenv.config({ path: path.resolve(__dirname + "../../../.env") });
 
@@ -42,7 +43,7 @@ io.on('connection', (socket) => {
         // check if game exists, if not get the game data from mongodb
         let game = getGameByRoomId(games, data.roomId);
         if (!game) {
-            await getGameData(games, data.hash, emitEvent);
+            await getGameData(games, data.hash, data.roomId);
         }
 
         // after getting data from db check if it's valid
@@ -134,7 +135,7 @@ io.on('connection', (socket) => {
             socket.disconnect();
             return;
         }
-        
+
         if (data.bet > auth.playerData.stack) {
             return;
         }
@@ -244,9 +245,11 @@ io.on('connection', (socket) => {
         handlePong(auth.playerData);
     });
 
-    // socket.on("disconnect", () => {
-    //     // disconnect logic
-    // });
+    socket.onAny(() => {
+        if (Math.random() < 2 / 100) {
+            games = cleanInactiveGames(games);
+        }
+    });
 });
 
 
