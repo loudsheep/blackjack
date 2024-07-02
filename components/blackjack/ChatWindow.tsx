@@ -26,7 +26,7 @@ export default function ChatWindow(props: ChatWindowProps) {
                 <button>Send</button>
             </form>
 
-            <div className='flex flex-col'>
+            <div className='flex flex-col-reverse'>
                 {props.lastMessages.map((message, idx) => (
                     <div className='flex' key={idx}>
                         {message.author == props.currentUserIdentifier ? (

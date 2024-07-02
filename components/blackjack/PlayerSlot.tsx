@@ -43,6 +43,10 @@ export default function PlayerSlot({ playerData, currentHand, currentPlayer }: P
                     )}
                 </div>
                 {playerData.username}
+
+                <span className="text-xs font-medium text-center me-2 px-2.5 py-0.5 rounded bg-gray-700 text-indigo-400 border border-indigo-400">
+                    {playerData.stack} $
+                </span>
             </div>
         )
     }

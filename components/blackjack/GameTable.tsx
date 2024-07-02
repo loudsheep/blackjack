@@ -57,12 +57,14 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
     const [betCountdown, setBetCountdown] = useState<number | null>(null);
     const [insuranceCountdown, setInsuranceCountdown] = useState<number | null>(null);
     const [actionTimeout, setActionTimeout] = useState<number | null>(null);
-    const [lastMessages, setMessages, addMessage] = useChatHistory();
+    const { chatHistory, addMessage } = useChatHistory();
     const [pauseRequested, setPauseRequested] = useState<boolean>(false);
 
     const placeBet = (value: number) => {
-        socket.emit('place_bet', { auth: authData, bet: value });
-        setShowBettingOptions(false);
+        if (value > 0) {
+            socket.emit('place_bet', { auth: authData, bet: value });
+            setShowBettingOptions(false);
+        }
     };
 
     const takeAction = (action: string) => {
@@ -137,6 +139,8 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
         });
 
         socket.on('recieve_chat_msg', (data) => {
+            console.log("RECIEVE");
+
             addMessage(data);
         });
 
@@ -147,6 +151,7 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
             socket.off('my_turn');
             socket.off('my_turn_finished');
             socket.off('pause_requested');
+            socket.off('recieve_chat_msg');
         };
     }, [socket]);
 
@@ -163,7 +168,7 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
             </div>
 
             {settings.enableChat && (
-                <ChatWindow sendMessage={sendChatMessage} lastMessages={lastMessages} currentUserIdentifier={currentPlayer.identifier}></ChatWindow>
+                <ChatWindow sendMessage={sendChatMessage} lastMessages={chatHistory} currentUserIdentifier={currentPlayer.identifier}></ChatWindow>
             )}
 
             <div className="table">

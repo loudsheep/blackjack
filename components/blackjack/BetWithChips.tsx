@@ -1,6 +1,9 @@
 "use client";
 
 import React, { useState } from 'react'
+import pokerChipSvg from "../../public/poker_chip_icon.svg";
+import Image from 'next/image';
+import ChipIcon from './ChipIcon';
 
 const availableChips = [1, 2, 5, 10, 50, 100, 500, 1000];
 
@@ -87,10 +90,14 @@ export default function BetWithChips({ userStack, placeBetCallback }: BetWithChi
 
                         <div className='flex-[2] flex'>
                             <div className='flex flex-[2] justify-center'>
-                                {selectedChips.map((value) => (
+                                {/* {selectedChips.map((value) => (
                                     <div className='h-5/6 aspect-square rounded-full flex justify-center items-center text-xl mr-1 bg-red-500 cursor-pointer' onClick={() => handleChipRemove(value)}>
                                         {value}
                                     </div>
+                                ))} */}
+
+                                {selectedChips.map((value, idx) => (
+                                    <ChipIcon value={value} key={idx} onClickElem={handleChipRemove} small={true}></ChipIcon>
                                 ))}
                             </div>
                         </div>
@@ -114,10 +121,8 @@ export default function BetWithChips({ userStack, placeBetCallback }: BetWithChi
                     </div>
 
                     <div className='flex flex-[2] justify-center flex-wrap'>
-                        {availableChips.map((value) => (
-                            <div className={'h-2/5 sm:h-3/5 lg:h-3/4 2xl:h-5/6 aspect-square rounded-full flex justify-center items-center text-xl mx-1 ' + (value <= temporaryUserStack ? "bg-red-500 cursor-pointer" : "bg-gray-500 cursor-not-allowed")} onClick={() => handleChipAdd(value)}>
-                                {value}
-                            </div>
+                        {availableChips.map((value, idx) => (
+                            <ChipIcon value={value} key={idx} disabled={value > temporaryUserStack} onClickElem={handleChipAdd}></ChipIcon>
                         ))}
                     </div>
                 </div>
