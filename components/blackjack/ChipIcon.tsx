@@ -29,15 +29,15 @@ export default function ChipIcon({ small, value, disabled, onClickElem }: ChipIc
         return (
             <div className={'h-[40px] aspect-square rounded-full flex justify-center items-center font-bold mx-1 ' + chipColors[value]['bg'] + (disabled ? " cursor-not-allowed grayscale opacity-25" : " cursor-pointer")} onClick={() => onClickElem(value)}>
                 <Chip className={'h-[38px] text-sm ' + chipColors[value]['fill']}></Chip>
-                <p className={'absolute ' + chipColors[value]['text']}>{value}</p>
+                <p className={'absolute text-xs ' + chipColors[value]['text']}>{value}</p>
             </div>
         )
     }
 
     return (
-        <div className={'h-2/5 sm:h-3/5 lg:h-3/4 2xl:h-5/6 aspect-square rounded-full flex justify-center items-center text-lg font-bold mx-1 ' + chipColors[value]['bg'] + (disabled ? " cursor-not-allowed grayscale opacity-25" : " cursor-pointer")} onClick={() => onClickElem(value)}>
-            <Chip className={'h-[35px] sm:h-[55px] lg:h-[70px] 2xl:h-[85px] ' + chipColors[value]['fill']}></Chip>
-            <p className={'absolute ' + chipColors[value]['text']}>{value}</p>
+        <div className={' aspect-square rounded-full flex justify-center items-center text-lg font-bold mx-1 mb-2 ' + chipColors[value]['bg'] + (disabled ? " cursor-not-allowed grayscale opacity-25" : " cursor-pointer")} onClick={() => onClickElem(value)}>
+            <Chip className={'h-[65px] sm:h-[70px] md:h-[60px] lg:h-[70px] 2xl:h-[85px] ' + chipColors[value]['fill']}></Chip>
+            <p className={'absolute text-sm ' + chipColors[value]['text']}>{value}</p>
         </div>
     )
 }
