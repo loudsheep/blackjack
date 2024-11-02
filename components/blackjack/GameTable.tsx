@@ -16,7 +16,16 @@ import PlayerSlot from './PlayerSlot';
 import PlayerActions from './PlayerActions';
 
 
-const mapPlayersToDisplay = (players: any) => {
+const mapPlayersToDisplay = (players: any, currentPlayerToken: string | null = null) => {
+    if (currentPlayerToken) {
+        for (const player of players) {
+            if (player.identifier === currentPlayerToken) {
+                return [player];
+            }
+        }
+    }
+
+
     let result = [];
     for (let i = 0; i < 5; i++) result.push({ empty: true });
 
@@ -59,6 +68,7 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
     const [actionTimeout, setActionTimeout] = useState<number | null>(null);
     const { chatHistory, addMessage } = useChatHistory();
     const [pauseRequested, setPauseRequested] = useState<boolean>(false);
+    
 
     const placeBet = (value: number) => {
         if (value > 0) {
@@ -167,9 +177,11 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
                 )}
             </div>
 
-            {settings.enableChat && (
-                <ChatWindow sendMessage={sendChatMessage} lastMessages={chatHistory} currentUserIdentifier={currentPlayer.identifier}></ChatWindow>
-            )}
+            <div className='hidden sm:block'>
+                {settings.enableChat && (
+                    <ChatWindow sendMessage={sendChatMessage} lastMessages={chatHistory} currentUserIdentifier={currentPlayer.identifier}></ChatWindow>
+                )}
+            </div>
 
             <div className="table">
                 <div className="w-full flex flex-col justify-center items-center">
@@ -184,13 +196,25 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
                     )}
                     <div className="flex-[9] w-full flex justify-center items-center">
                         {gameData.dealerCards.map((value: any, idx: any) => (
-                            <Card suit={value.suit} value={value.value} key={idx} className='ml-1 h-[190px]'></Card>
+                            <Card suit={value.suit} value={value.value} key={idx} className='ml-1 max-h-[150px] md:h-[190px]'></Card>
+                        ))}
+                        {gameData.dealerCards.map((value: any, idx: any) => (
+                            <Card suit={value.suit} value={value.value} key={idx} className='ml-1 max-h-[150px] md:h-[190px]'></Card>
+                        ))}
+                        {gameData.dealerCards.map((value: any, idx: any) => (
+                            <Card suit={value.suit} value={value.value} key={idx} className='ml-1 max-h-[150px] md:h-[190px]'></Card>
                         ))}
                     </div>
                 </div>
 
-                <div className='absolute w-full flex flex-row-reverse left-0 top-[50%]'>
+                <div className='hidden md:block absolute w-full flex flex-row-reverse left-0 top-[50%]'>
                     {mapPlayersToDisplay(gameData.players).map((value: any, idx: number) => (
+                        <PlayerSlot key={idx} playerData={value} currentHand={gameData.currentHand} currentPlayer={gameData.currentPlayer}></PlayerSlot>
+                    ))}
+                </div>
+
+                <div className='md:hidden absolute w-full flex flex-row-reverse left-0 top-[35%]'>
+                    {mapPlayersToDisplay(gameData.players, currentPlayer.identifier).map((value: any, idx: number) => (
                         <PlayerSlot key={idx} playerData={value} currentHand={gameData.currentHand} currentPlayer={gameData.currentPlayer}></PlayerSlot>
                     ))}
                 </div>
