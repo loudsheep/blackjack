@@ -15,8 +15,8 @@ const styles = [
 export default function PlayerActions({ actions, actionCallback }: PlayerActionsProps) {
     return (
         <div className='flex absolute w-[100vw] bottom-0 justify-center z-50'>
-            <div className='flex flex-col h-36 w-full md:w-3/4 lg:w-3/5 xl:w-1/2 bg-black bg-opacity-30 border-2 border-black rounded-lg text-white p-1'>
-                <div className='flex-[1]'>
+            <div className='flex flex-col h-64 md:h-36 w-full md:w-3/4 lg:w-3/5 xl:w-1/2 bg-black bg-opacity-30 border-2 border-black rounded-lg text-white p-1'>
+                <div className=''>
                     Take Action:
                 </div>
 

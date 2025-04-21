@@ -31,6 +31,11 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
         username: props.username,
     };
 
+    const startGame = () => {
+        socket.emit('start_game', authData);
+        console.log("STARING GAME");
+    };
+
     const updateGameState = (data: any) => {
         setShowWaitingForGameToStart(!data.gameStarted);
         setGameData(data);
@@ -92,6 +97,10 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
             window.location.replace("/");
         });
 
+        socket.on("disconnect", (reason) => {
+            console.log("Socket disconnected:", reason);
+        });
+
         return () => {
             socket.off('ping');
             socket.off('new_user');
@@ -107,7 +116,7 @@ export default function BlackjackGame(props: BlackjacjGameProps) {
 
     if (showWaitingForGameToStart) {
         return (
-            <BeforeGameStarts players={gameData.players} gameHash={props.gameHash} currentUserIsCreator={props.currentUserIsCreator} startGame={() => socket.emit('start_game', authData)} kickPlayer={kick} banPlayer={ban}></BeforeGameStarts>
+            <BeforeGameStarts players={gameData.players} gameHash={props.gameHash} currentUserIsCreator={props.currentUserIsCreator} startGame={startGame} kickPlayer={kick} banPlayer={ban}></BeforeGameStarts>
         );
     }
 

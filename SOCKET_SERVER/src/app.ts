@@ -14,32 +14,32 @@ import { readFileSync } from "fs";
 import { handlePong } from "./game/ping";
 import { cleanInactiveGames } from "./util/util";
 
-dotenv.config({ path: path.resolve(__dirname + "../../../.env") });
+dotenv.config();
 
-const httpServer = process.env.SOCKET_USE_HTTPS == "true" ? https.createServer({
-    key: readFileSync(process.env.SOCKET_HTTPS_KEY_PATH),
-    cert: readFileSync(process.env.SOCKET_HTTPS_CERT_PATH),
-}) : http.createServer();
+const httpServer = http.createServer();
 
 const io = new Server(httpServer, {
     cors: {
-        // origin: "http://localhost:3000", // Replace with frontend URL - TODO
-        origin: "*", // Replace with frontend URL - TODO process.env.BASE_PATH
+        origin: process.env.BASE_PATH ?? "http://localhost:3000", // Replace with frontend URL - TODO
+        // origin: "*", // Replace with frontend URL - TODO process.env.BASE_PATH
         methods: ["GET", "POST"],
-        allowedHeaders: ["my-custom-header"],
-        credentials: true,
+        // credentials: true,
     }
 })
 
 let games = createGamesObject();
 
 io.on('connection', (socket) => {
+    console.log("CONNECTED");
+
     const emitEvent: EmitEventFunction = (roomId, event, data) => {
         io.to(roomId).emit(event, data);
     };
 
     // game realted events
     socket.on('join_room', async (data) => {
+        console.log("OIN ROOM");
+
         // check if game exists, if not get the game data from mongodb
         let game = getGameByRoomId(games, data.roomId);
         if (!game) {
@@ -80,6 +80,8 @@ io.on('connection', (socket) => {
     });
 
     socket.on('start_game', async (data: IncomingData) => {
+        console.log("GAME START");
+
         let game = getGameByRoomId(games, data.roomId);
         let auth = authenticateUser(game, data.token);
 
@@ -249,6 +251,10 @@ io.on('connection', (socket) => {
         if (Math.random() < 2 / 100) {
             games = cleanInactiveGames(games);
         }
+    });
+
+    socket.on("disconnect", (reason) => {
+        console.log(`Socket ${socket.id} disconnected: ${reason}`);
     });
 });
 

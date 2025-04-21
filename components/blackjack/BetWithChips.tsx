@@ -81,21 +81,15 @@ export default function BetWithChips({ userStack, placeBetCallback }: BetWithChi
 
     return (
         <>
-            <div className='flex absolute w-[100vw] bottom-36 justify-center z-50'>
-                <div className='flex h-24 w-1/2 text-white p-1' style={{ background: "radial-gradient(circle, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 100%)" }}>
-                    <div className='flex-[1] md:flex-[2] lg:flex-[3] xl:flex-[5] 2xl:flex-[6] flex flex-col'>
+            <div className='flex absolute w-[100vw] bottom-64 md:bottom-36 justify-center z-50'>
+                <div className='flex h-48 md:h-24 w-full md:w-1/2 text-white p-1 flex-col md:flex-row border-t-2 md:border-none' style={{ background: "radial-gradient(circle, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 100%)" }}>
+                    <div className='flex-[3] md:flex-[2] lg:flex-[3] xl:flex-[5] 2xl:flex-[6] flex flex-col'>
                         <div className='flex-[1] w-full text-center'>
                             Your bet: {userStack - temporaryUserStack}$
                         </div>
 
                         <div className='flex-[2] flex'>
                             <div className='flex flex-[2] justify-center'>
-                                {/* {selectedChips.map((value) => (
-                                    <div className='h-5/6 aspect-square rounded-full flex justify-center items-center text-xl mr-1 bg-red-500 cursor-pointer' onClick={() => handleChipRemove(value)}>
-                                        {value}
-                                    </div>
-                                ))} */}
-
                                 {selectedChips.map((value, idx) => (
                                     <ChipIcon value={value} key={idx} onClickElem={handleChipRemove} small={true}></ChipIcon>
                                 ))}
@@ -103,7 +97,7 @@ export default function BetWithChips({ userStack, placeBetCallback }: BetWithChi
                         </div>
                     </div>
 
-                    <div className='flex-[1] flex flex-col justify-between'>
+                    <div className='flex-[1] flex justify-between flex-row md:flex-col'>
                         <button className='w-full relative bg-gradient-to-b from-red-700 to-red-800 hover:from-red-800 hover:to-red-900 text-white font-bold py-1.5 px-4 rounded-md shadow-md transition-all duration-300' style={{ border: '2px solid #440000' }} onClick={handleConfirmBet}>
                             Place Bet
                         </button>
@@ -115,12 +109,12 @@ export default function BetWithChips({ userStack, placeBetCallback }: BetWithChi
             </div>
 
             <div className='flex absolute w-[100vw] bottom-0 justify-center z-50'>
-                <div className='flex flex-col h-36 w-full md:w-3/4 lg:w-3/5 xl:w-1/2 bg-black bg-opacity-30 border-2 border-black rounded-lg text-white p-1'>
-                    <div className='flex-[1]'>
+                <div className='flex flex-col h-64 md:h-36 w-full md:w-3/4 lg:w-3/5 xl:w-1/2 bg-black bg-opacity-30 border-2 border-black rounded-lg text-white p-1'>
+                    <div className='mb-5'>
                         Your stack: {temporaryUserStack}$
                     </div>
 
-                    <div className='flex flex-[2] justify-center flex-wrap'>
+                    <div className='flex justify-center flex-wrap'>
                         {availableChips.map((value, idx) => (
                             <ChipIcon value={value} key={idx} disabled={value > temporaryUserStack} onClickElem={handleChipAdd}></ChipIcon>
                         ))}
