@@ -198,16 +198,10 @@ export default function GameTable({ socket, authData, currentPlayer, settings, g
                         {gameData.dealerCards.map((value: any, idx: any) => (
                             <Card suit={value.suit} value={value.value} key={idx} className='ml-1 max-h-[150px] md:h-[190px]'></Card>
                         ))}
-                        {gameData.dealerCards.map((value: any, idx: any) => (
-                            <Card suit={value.suit} value={value.value} key={idx} className='ml-1 max-h-[150px] md:h-[190px]'></Card>
-                        ))}
-                        {gameData.dealerCards.map((value: any, idx: any) => (
-                            <Card suit={value.suit} value={value.value} key={idx} className='ml-1 max-h-[150px] md:h-[190px]'></Card>
-                        ))}
                     </div>
                 </div>
 
-                <div className='hidden md:block absolute w-full flex flex-row-reverse left-0 top-[50%]'>
+                <div className='hidden md:flex absolute w-full flex-row-reverse left-0 top-[50%]'>
                     {mapPlayersToDisplay(gameData.players).map((value: any, idx: number) => (
                         <PlayerSlot key={idx} playerData={value} currentHand={gameData.currentHand} currentPlayer={gameData.currentPlayer}></PlayerSlot>
                     ))}
