@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { cookies } from 'next/headers';
 import CreateUserName from "@/components/CreateUserName";
 import BlackjackGame from "@/components/blackjack/BlackjackGame";
+import GameAlreadyStarted from "@/components/GameAlreadyStarted";
 
 type GamePageProps = {
     params: {
@@ -73,7 +74,7 @@ export default async function GamePage({ params }: GamePageProps) {
     if (roomId === -1) return notFound();
 
     if (game.gameStarted) {
-        if (!(await checkIfUserIsPartOfTheGame(game, user_token.value))) return notFound();
+        if (!(await checkIfUserIsPartOfTheGame(game, user_token.value))) return <GameAlreadyStarted></GameAlreadyStarted>;
     }
 
     let isCreator = false;
